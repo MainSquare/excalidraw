@@ -1,4 +1,4 @@
-import { isServerEnv, promiseTry } from "@excalidraw/common";
+import { isServerEnv, promiseTry } from "@mainsquare/excalidraw-common";
 
 import { WorkerInTheMainChunkError, WorkerUrlNotDefinedError } from "../errors";
 import { WorkerPool } from "../workers";

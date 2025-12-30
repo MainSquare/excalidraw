@@ -1,14 +1,14 @@
-import { getVisibleElements } from "@excalidraw/element";
+import { getVisibleElements } from "@mainsquare/excalidraw-element";
 import {
   sceneCoordsToViewportCoords,
   viewportCoordsToSceneCoords,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
-import { getClosestElementBounds } from "@excalidraw/element";
+import { getClosestElementBounds } from "@mainsquare/excalidraw-element";
 
-import { getCommonBounds } from "@excalidraw/element";
+import { getCommonBounds } from "@mainsquare/excalidraw-element";
 
-import type { ExcalidrawElement } from "@excalidraw/element/types";
+import type { ExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
 import type { AppState, Offsets, PointerCoords, Zoom } from "../types";
 

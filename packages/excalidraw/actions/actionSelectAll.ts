@@ -1,14 +1,14 @@
-import { getNonDeletedElements } from "@excalidraw/element";
-import { LinearElementEditor } from "@excalidraw/element";
-import { isLinearElement, isTextElement } from "@excalidraw/element";
+import { getNonDeletedElements } from "@mainsquare/excalidraw-element";
+import { LinearElementEditor } from "@mainsquare/excalidraw-element";
+import { isLinearElement, isTextElement } from "@mainsquare/excalidraw-element";
 
-import { arrayToMap, KEYS } from "@excalidraw/common";
+import { arrayToMap, KEYS } from "@mainsquare/excalidraw-common";
 
-import { selectGroupsForSelectedElements } from "@excalidraw/element";
+import { selectGroupsForSelectedElements } from "@mainsquare/excalidraw-element";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
-import type { ExcalidrawElement } from "@excalidraw/element/types";
+import type { ExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
 import { selectAllIcon } from "../components/icons";
 

@@ -1,4 +1,4 @@
-import { pointFrom, type LocalPoint } from "@excalidraw/math";
+import { pointFrom, type LocalPoint } from "@mainsquare/excalidraw-math";
 
 import {
   DEFAULT_FONT_FAMILY,
@@ -14,9 +14,9 @@ import {
   isDevEnv,
   toBrandedType,
   getLineHeight,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
-import { bindBindingElement } from "@excalidraw/element";
+import { bindBindingElement } from "@mainsquare/excalidraw-element";
 import {
   newArrowElement,
   newElement,
@@ -25,21 +25,21 @@ import {
   newLinearElement,
   newMagicFrameElement,
   newTextElement,
-} from "@excalidraw/element";
-import { measureText, normalizeText } from "@excalidraw/element";
-import { isArrowElement } from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
+import { measureText, normalizeText } from "@mainsquare/excalidraw-element";
+import { isArrowElement } from "@mainsquare/excalidraw-element";
 
-import { syncInvalidIndices } from "@excalidraw/element";
+import { syncInvalidIndices } from "@mainsquare/excalidraw-element";
 
-import { redrawTextBoundingBox } from "@excalidraw/element";
+import { redrawTextBoundingBox } from "@mainsquare/excalidraw-element";
 
-import { LinearElementEditor } from "@excalidraw/element";
+import { LinearElementEditor } from "@mainsquare/excalidraw-element";
 
-import { getCommonBounds } from "@excalidraw/element";
+import { getCommonBounds } from "@mainsquare/excalidraw-element";
 
-import { Scene } from "@excalidraw/element";
+import { Scene } from "@mainsquare/excalidraw-element";
 
-import type { ElementConstructorOpts } from "@excalidraw/element";
+import type { ElementConstructorOpts } from "@mainsquare/excalidraw-element";
 
 import type {
   ExcalidrawArrowElement,
@@ -59,9 +59,9 @@ import type {
   NonDeletedSceneElementsMap,
   TextAlign,
   VerticalAlign,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
-import type { MarkOptional } from "@excalidraw/common/utility-types";
+import type { MarkOptional } from "@mainsquare/excalidraw-common/utility-types";
 
 export type ValidLinearElement = {
   type: "arrow" | "line";

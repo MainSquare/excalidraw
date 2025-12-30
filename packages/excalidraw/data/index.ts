@@ -6,19 +6,19 @@ import {
   MIME_TYPES,
   cloneJSON,
   SVG_DOCUMENT_PREAMBLE,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
-import { getNonDeletedElements } from "@excalidraw/element";
+import { getNonDeletedElements } from "@mainsquare/excalidraw-element";
 
-import { isFrameLikeElement } from "@excalidraw/element";
+import { isFrameLikeElement } from "@mainsquare/excalidraw-element";
 
-import { getElementsOverlappingFrame } from "@excalidraw/element";
+import { getElementsOverlappingFrame } from "@mainsquare/excalidraw-element";
 
 import type {
   ExcalidrawElement,
   ExcalidrawFrameLikeElement,
   NonDeletedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import {
   copyBlobToClipboardAsPng,

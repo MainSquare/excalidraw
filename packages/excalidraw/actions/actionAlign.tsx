@@ -1,20 +1,20 @@
-import { getNonDeletedElements } from "@excalidraw/element";
+import { getNonDeletedElements } from "@mainsquare/excalidraw-element";
 
-import { isFrameLikeElement } from "@excalidraw/element";
+import { isFrameLikeElement } from "@mainsquare/excalidraw-element";
 
-import { updateFrameMembershipOfSelectedElements } from "@excalidraw/element";
+import { updateFrameMembershipOfSelectedElements } from "@mainsquare/excalidraw-element";
 
-import { KEYS, arrayToMap } from "@excalidraw/common";
+import { KEYS, arrayToMap } from "@mainsquare/excalidraw-common";
 
-import { alignElements } from "@excalidraw/element";
+import { alignElements } from "@mainsquare/excalidraw-element";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
-import { getSelectedElementsByGroup } from "@excalidraw/element";
+import { getSelectedElementsByGroup } from "@mainsquare/excalidraw-element";
 
-import type { ExcalidrawElement } from "@excalidraw/element/types";
+import type { ExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
-import type { Alignment } from "@excalidraw/element";
+import type { Alignment } from "@mainsquare/excalidraw-element";
 
 import { ToolButton } from "../components/ToolButton";
 import {

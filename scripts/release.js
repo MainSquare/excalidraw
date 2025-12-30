@@ -110,11 +110,11 @@ const updatePackageJsons = (nextVersion) => {
 
     if (pkg.dependencies) {
       for (const dependencyName of PACKAGES) {
-        if (!pkg.dependencies[`@excalidraw/${dependencyName}`]) {
+        if (!pkg.dependencies[`@mainsquare/${dependencyName}`]) {
           continue;
         }
 
-        pkg.dependencies[`@excalidraw/${dependencyName}`] = nextVersion;
+        pkg.dependencies[`@mainsquare/${dependencyName}`] = nextVersion;
       }
     }
 
@@ -151,7 +151,7 @@ const askToCommit = (tag, nextVersion) => {
         if (answer.toLowerCase() === "y") {
           execSync(`git add -u`);
           execSync(
-            `git commit -m "chore: release @excalidraw/excalidraw@${nextVersion} 🎉"`,
+            `git commit -m "chore: release @mainsquare/excalidraw@${nextVersion} 🎉"`,
           );
         } else {
           console.warn(
@@ -173,7 +173,7 @@ const buildPackages = () => {
   execSync(`yarn rm:build`, { stdio: "inherit" });
 
   for (const packageName of PACKAGES) {
-    console.info(`Building "@excalidraw/${packageName}"...`);
+    console.info(`Building "@mainsquare/${packageName}"...`);
     execSync(`yarn run build:esm`, {
       cwd: path.resolve(PACKAGES_DIR, packageName),
       stdio: "inherit",
@@ -213,7 +213,7 @@ const publishPackages = (tag, version) => {
     });
 
     console.info(
-      `Published "@excalidraw/${packageName}@${tag}" with version "${version}"! 🎉`,
+      `Published "@mainsquare/${packageName}@${tag}" with version "${version}"! 🎉`,
     );
   }
 };

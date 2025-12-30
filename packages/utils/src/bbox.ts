@@ -3,9 +3,9 @@ import {
   vectorFromPoint,
   type GlobalPoint,
   type LocalPoint,
-} from "@excalidraw/math";
+} from "@mainsquare/excalidraw-math";
 
-import type { Bounds } from "@excalidraw/common";
+import type { Bounds } from "@mainsquare/excalidraw-common";
 
 export type LineSegment<P extends LocalPoint | GlobalPoint> = [P, P];
 

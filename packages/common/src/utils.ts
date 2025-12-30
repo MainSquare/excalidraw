@@ -1,6 +1,6 @@
-import { average } from "@excalidraw/math";
+import { average } from "@mainsquare/excalidraw-math";
 
-import type { FontFamilyValues, FontString } from "@excalidraw/element/types";
+import type { FontFamilyValues, FontString } from "@mainsquare/excalidraw-element/types";
 
 import type {
   ActiveTool,
@@ -8,7 +8,7 @@ import type {
   ToolType,
   UnsubscribeCallback,
   Zoom,
-} from "@excalidraw/excalidraw/types";
+} from "@mainsquare/excalidraw/types";
 
 import { COLOR_PALETTE } from "./colors";
 import {

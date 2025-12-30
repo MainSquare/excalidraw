@@ -7,7 +7,7 @@
         "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
         "pathGroups": [
           {
-            "pattern": "@excalidraw/**",
+            "pattern": "@mainsquare/**",
             "group": "external",
             "position": "after"
           }

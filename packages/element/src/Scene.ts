@@ -7,20 +7,20 @@ import {
   isDevEnv,
   isTestEnv,
   toArray,
-} from "@excalidraw/common";
-import { isNonDeletedElement } from "@excalidraw/element";
-import { isFrameLikeElement } from "@excalidraw/element";
-import { getElementsInGroup } from "@excalidraw/element";
+} from "@mainsquare/excalidraw-common";
+import { isNonDeletedElement } from "@mainsquare/excalidraw-element";
+import { isFrameLikeElement } from "@mainsquare/excalidraw-element";
+import { getElementsInGroup } from "@mainsquare/excalidraw-element";
 
 import {
   syncInvalidIndices,
   syncMovedIndices,
   validateFractionalIndices,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import { getSelectedElements } from "@excalidraw/element";
+import { getSelectedElements } from "@mainsquare/excalidraw-element";
 
-import { mutateElement, type ElementUpdate } from "@excalidraw/element";
+import { mutateElement, type ElementUpdate } from "@mainsquare/excalidraw-element";
 
 import type {
   ExcalidrawElement,
@@ -32,13 +32,13 @@ import type {
   NonDeletedSceneElementsMap,
   OrderedExcalidrawElement,
   Ordered,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import type {
   Assert,
   Mutable,
   SameType,
-} from "@excalidraw/common/utility-types";
+} from "@mainsquare/excalidraw-common/utility-types";
 
 import type { AppState } from "../../excalidraw/types";
 

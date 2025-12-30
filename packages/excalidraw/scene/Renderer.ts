@@ -1,14 +1,14 @@
-import { isElementInViewport } from "@excalidraw/element";
+import { isElementInViewport } from "@mainsquare/excalidraw-element";
 
-import { memoize, toBrandedType } from "@excalidraw/common";
+import { memoize, toBrandedType } from "@mainsquare/excalidraw-common";
 
 import type {
   ExcalidrawElement,
   NonDeletedElementsMap,
   NonDeletedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
-import type { Scene } from "@excalidraw/element";
+import type { Scene } from "@mainsquare/excalidraw-element";
 
 import { renderStaticSceneThrottled } from "../renderer/staticScene";
 

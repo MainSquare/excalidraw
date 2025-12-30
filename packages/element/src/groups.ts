@@ -2,8 +2,8 @@ import type {
   AppClassProperties,
   AppState,
   InteractiveCanvasAppState,
-} from "@excalidraw/excalidraw/types";
-import type { Mutable } from "@excalidraw/common/utility-types";
+} from "@mainsquare/excalidraw/types";
+import type { Mutable } from "@mainsquare/excalidraw-common/utility-types";
 
 import { getBoundTextElement } from "./textElement";
 

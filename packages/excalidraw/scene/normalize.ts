@@ -1,6 +1,6 @@
-import { MAX_ZOOM, MIN_ZOOM } from "@excalidraw/common";
+import { MAX_ZOOM, MIN_ZOOM } from "@mainsquare/excalidraw-common";
 
-import { clamp, round } from "@excalidraw/math";
+import { clamp, round } from "@mainsquare/excalidraw-math";
 
 import type { NormalizedZoomValue } from "../types";
 

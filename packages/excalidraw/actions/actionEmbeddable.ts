@@ -1,6 +1,6 @@
-import { updateActiveTool } from "@excalidraw/common";
+import { updateActiveTool } from "@mainsquare/excalidraw-common";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
 import { setCursorForShape } from "../cursor";
 

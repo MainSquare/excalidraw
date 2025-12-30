@@ -1,10 +1,10 @@
-import { ROUNDNESS, assertNever } from "@excalidraw/common";
+import { ROUNDNESS, assertNever } from "@mainsquare/excalidraw-common";
 
-import { pointsEqual } from "@excalidraw/math";
+import { pointsEqual } from "@mainsquare/excalidraw-math";
 
-import type { ElementOrToolType } from "@excalidraw/excalidraw/types";
+import type { ElementOrToolType } from "@mainsquare/excalidraw/types";
 
-import type { MarkNonNullable } from "@excalidraw/common/utility-types";
+import type { MarkNonNullable } from "@mainsquare/excalidraw-common/utility-types";
 
 import type {
   ExcalidrawElement,

@@ -3,13 +3,13 @@ import {
   DEFAULT_EXPORT_PADDING,
   EXPORT_SCALES,
   THEME,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
-import { getNonDeletedElements } from "@excalidraw/element";
+import { getNonDeletedElements } from "@mainsquare/excalidraw-element";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
-import type { Theme } from "@excalidraw/element/types";
+import type { Theme } from "@mainsquare/excalidraw-element/types";
 
 import { useEditorInterface } from "../components/App";
 import { CheckboxItem } from "../components/CheckboxItem";

@@ -1,4 +1,4 @@
-import { debounce } from "@excalidraw/common";
+import { debounce } from "@mainsquare/excalidraw-common";
 
 import { WorkerInTheMainChunkError, WorkerUrlNotDefinedError } from "./errors";
 

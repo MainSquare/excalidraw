@@ -1,16 +1,16 @@
-import { CaptureUpdateAction, newElementWith } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, newElementWith } from "@mainsquare/excalidraw";
 import {
   createRedoAction,
   createUndoAction,
-} from "@excalidraw/excalidraw/actions/actionHistory";
-import { syncInvalidIndices } from "@excalidraw/element";
-import { API } from "@excalidraw/excalidraw/tests/helpers/api";
-import { act, render, waitFor } from "@excalidraw/excalidraw/tests/test-utils";
+} from "@mainsquare/excalidraw/actions/actionHistory";
+import { syncInvalidIndices } from "@mainsquare/excalidraw-element";
+import { API } from "@mainsquare/excalidraw/tests/helpers/api";
+import { act, render, waitFor } from "@mainsquare/excalidraw/tests/test-utils";
 import { vi } from "vitest";
 
-import { StoreIncrement } from "@excalidraw/element";
+import { StoreIncrement } from "@mainsquare/excalidraw-element";
 
-import type { DurableIncrement, EphemeralIncrement } from "@excalidraw/element";
+import type { DurableIncrement, EphemeralIncrement } from "@mainsquare/excalidraw-element";
 
 import ExcalidrawApp from "../App";
 

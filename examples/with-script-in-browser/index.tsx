@@ -1,9 +1,9 @@
 import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import "@excalidraw/excalidraw/index.css";
+import "@mainsquare/excalidraw/index.css";
 
-import type * as TExcalidraw from "@excalidraw/excalidraw";
+import type * as TExcalidraw from "@mainsquare/excalidraw";
 
 import App from "./components/ExampleApp";
 

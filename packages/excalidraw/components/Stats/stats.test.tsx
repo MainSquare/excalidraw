@@ -1,21 +1,21 @@
-import { degreesToRadians, pointFrom, pointRotateRads } from "@excalidraw/math";
+import { degreesToRadians, pointFrom, pointRotateRads } from "@mainsquare/excalidraw-math";
 import { act, fireEvent, queryByTestId } from "@testing-library/react";
 import React from "react";
 import { vi } from "vitest";
 
-import { setDateTimeForTests, reseed } from "@excalidraw/common";
+import { setDateTimeForTests, reseed } from "@mainsquare/excalidraw-common";
 
-import { isInGroup } from "@excalidraw/element";
+import { isInGroup } from "@mainsquare/excalidraw-element";
 
-import { isTextElement } from "@excalidraw/element";
+import { isTextElement } from "@mainsquare/excalidraw-element";
 
-import type { Degrees } from "@excalidraw/math";
+import type { Degrees } from "@mainsquare/excalidraw-math";
 
 import type {
   ExcalidrawElement,
   ExcalidrawLinearElement,
   ExcalidrawTextElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import { Excalidraw, getCommonBounds } from "../..";
 import { actionGroup } from "../../actions";

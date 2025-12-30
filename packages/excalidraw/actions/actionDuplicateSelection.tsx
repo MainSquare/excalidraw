@@ -3,22 +3,22 @@ import {
   KEYS,
   MOBILE_ACTION_BUTTON_BG,
   arrayToMap,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
-import { getNonDeletedElements } from "@excalidraw/element";
+import { getNonDeletedElements } from "@mainsquare/excalidraw-element";
 
-import { LinearElementEditor } from "@excalidraw/element";
+import { LinearElementEditor } from "@mainsquare/excalidraw-element";
 
 import {
   getSelectedElements,
   getSelectionStateForElements,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import { syncMovedIndices } from "@excalidraw/element";
+import { syncMovedIndices } from "@mainsquare/excalidraw-element";
 
-import { duplicateElements } from "@excalidraw/element";
+import { duplicateElements } from "@mainsquare/excalidraw-element";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";

@@ -1,6 +1,6 @@
-import { CODES, KEYS } from "@excalidraw/common";
+import { CODES, KEYS } from "@mainsquare/excalidraw-common";
 
-import { CaptureUpdateAction } from "@excalidraw/element";
+import { CaptureUpdateAction } from "@mainsquare/excalidraw-element";
 
 import { eyeIcon } from "../components/icons";
 

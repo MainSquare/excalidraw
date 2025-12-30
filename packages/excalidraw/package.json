@@ -1,6 +1,6 @@
 {
-  "name": "@excalidraw/excalidraw",
-  "version": "0.18.0",
+  "name": "@mainsquare/excalidraw",
+  "version": "0.18.0-d87620b2",
   "type": "module",
   "types": "./dist/types/excalidraw/index.d.ts",
   "main": "./dist/prod/index.js",
@@ -79,10 +79,10 @@
   },
   "dependencies": {
     "@braintree/sanitize-url": "6.0.2",
-    "@excalidraw/common": "0.18.0",
-    "@excalidraw/element": "0.18.0",
+    "@mainsquare/excalidraw-common": "0.18.0-d87620b2",
+    "@mainsquare/excalidraw-element": "0.18.0-d87620b2",
     "@excalidraw/laser-pointer": "1.3.1",
-    "@excalidraw/math": "0.18.0",
+    "@mainsquare/excalidraw-math": "0.18.0-d87620b2",
     "@excalidraw/mermaid-to-excalidraw": "1.1.3",
     "@excalidraw/random-username": "1.1.0",
     "@radix-ui/react-popover": "1.1.6",

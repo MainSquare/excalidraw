@@ -7,39 +7,39 @@ import {
   isRTL,
   isTestEnv,
   getVerticalOffset,
-} from "@excalidraw/common";
-import { normalizeLink, toValidURL } from "@excalidraw/common";
-import { hashString } from "@excalidraw/element";
-import { getUncroppedWidthAndHeight } from "@excalidraw/element";
+} from "@mainsquare/excalidraw-common";
+import { normalizeLink, toValidURL } from "@mainsquare/excalidraw-common";
+import { hashString } from "@mainsquare/excalidraw-element";
+import { getUncroppedWidthAndHeight } from "@mainsquare/excalidraw-element";
 import {
   createPlaceholderEmbeddableLabel,
   getEmbedLink,
-} from "@excalidraw/element";
-import { LinearElementEditor } from "@excalidraw/element";
-import { getBoundTextElement, getContainerElement } from "@excalidraw/element";
-import { getLineHeightInPx } from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
+import { LinearElementEditor } from "@mainsquare/excalidraw-element";
+import { getBoundTextElement, getContainerElement } from "@mainsquare/excalidraw-element";
+import { getLineHeightInPx } from "@mainsquare/excalidraw-element";
 import {
   isArrowElement,
   isIframeLikeElement,
   isInitializedImageElement,
   isTextElement,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import { getContainingFrame } from "@excalidraw/element";
+import { getContainingFrame } from "@mainsquare/excalidraw-element";
 
-import { getCornerRadius, isPathALoop } from "@excalidraw/element";
+import { getCornerRadius, isPathALoop } from "@mainsquare/excalidraw-element";
 
-import { ShapeCache } from "@excalidraw/element";
+import { ShapeCache } from "@mainsquare/excalidraw-element";
 
-import { getFreeDrawSvgPath, IMAGE_INVERT_FILTER } from "@excalidraw/element";
+import { getFreeDrawSvgPath, IMAGE_INVERT_FILTER } from "@mainsquare/excalidraw-element";
 
-import { getElementAbsoluteCoords } from "@excalidraw/element";
+import { getElementAbsoluteCoords } from "@mainsquare/excalidraw-element";
 
 import type {
   ExcalidrawElement,
   ExcalidrawTextElementWithContainer,
   NonDeletedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import type { RenderableElementsMap, SVGRenderConfig } from "../scene/types";
 import type { AppState, BinaryFiles } from "../types";

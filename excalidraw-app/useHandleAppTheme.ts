@@ -1,8 +1,8 @@
-import { THEME } from "@excalidraw/excalidraw";
-import { EVENT, CODES, KEYS } from "@excalidraw/common";
+import { THEME } from "@mainsquare/excalidraw";
+import { EVENT, CODES, KEYS } from "@mainsquare/excalidraw-common";
 import { useEffect, useLayoutEffect, useState } from "react";
 
-import type { Theme } from "@excalidraw/element/types";
+import type { Theme } from "@mainsquare/excalidraw-element/types";
 
 import { STORAGE_KEYS } from "./app_constants";
 

@@ -4,11 +4,11 @@ import {
   getTextFromElements,
   MIME_TYPES,
   TTDDialog,
-} from "@excalidraw/excalidraw";
-import { getDataURL } from "@excalidraw/excalidraw/data/blob";
-import { safelyParseJSON } from "@excalidraw/common";
+} from "@mainsquare/excalidraw";
+import { getDataURL } from "@mainsquare/excalidraw/data/blob";
+import { safelyParseJSON } from "@mainsquare/excalidraw-common";
 
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import type { ExcalidrawImperativeAPI } from "@mainsquare/excalidraw/types";
 
 export const AIComponents = ({
   excalidrawAPI,

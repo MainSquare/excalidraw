@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { Emitter } from "@excalidraw/common";
+import type { Emitter } from "@mainsquare/excalidraw-common";
 
 export const useEmitter = <TEvent extends unknown>(
   emitter: Emitter<[TEvent]>,

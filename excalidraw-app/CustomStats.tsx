@@ -1,16 +1,16 @@
-import { Stats } from "@excalidraw/excalidraw";
-import { copyTextToSystemClipboard } from "@excalidraw/excalidraw/clipboard";
+import { Stats } from "@mainsquare/excalidraw";
+import { copyTextToSystemClipboard } from "@mainsquare/excalidraw/clipboard";
 import {
   DEFAULT_VERSION,
   debounce,
   getVersion,
   nFormatter,
-} from "@excalidraw/common";
-import { t } from "@excalidraw/excalidraw/i18n";
+} from "@mainsquare/excalidraw-common";
+import { t } from "@mainsquare/excalidraw/i18n";
 import { useEffect, useState } from "react";
 
-import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
-import type { UIAppState } from "@excalidraw/excalidraw/types";
+import type { NonDeletedExcalidrawElement } from "@mainsquare/excalidraw-element/types";
+import type { UIAppState } from "@mainsquare/excalidraw/types";
 
 import {
   getElementsStorageSize,

@@ -1,10 +1,10 @@
 import {
   clearAppStateForLocalStorage,
   getDefaultAppState,
-} from "@excalidraw/excalidraw/appState";
+} from "@mainsquare/excalidraw/appState";
 
-import type { ExcalidrawElement } from "@excalidraw/element/types";
-import type { AppState } from "@excalidraw/excalidraw/types";
+import type { ExcalidrawElement } from "@mainsquare/excalidraw-element/types";
+import type { AppState } from "@mainsquare/excalidraw/types";
 
 import { STORAGE_KEYS } from "../app_constants";
 

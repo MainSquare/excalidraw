@@ -6,7 +6,7 @@ import {
   invariant,
   rescalePoints,
   sizeOf,
-} from "@excalidraw/common";
+} from "@mainsquare/excalidraw-common";
 
 import {
   degreesToRadians,
@@ -15,9 +15,9 @@ import {
   pointFrom,
   pointFromArray,
   pointRotateRads,
-} from "@excalidraw/math";
+} from "@mainsquare/excalidraw-math";
 
-import { getCurvePathOps } from "@excalidraw/utils/shape";
+import { getCurvePathOps } from "@mainsquare/excalidraw-utils/shape";
 
 import { pointsOnBezierCurves } from "points-on-curve";
 
@@ -28,11 +28,11 @@ import type {
   LineSegment,
   LocalPoint,
   Radians,
-} from "@excalidraw/math";
+} from "@mainsquare/excalidraw-math";
 
-import type { AppState } from "@excalidraw/excalidraw/types";
+import type { AppState } from "@mainsquare/excalidraw/types";
 
-import type { Mutable } from "@excalidraw/common/utility-types";
+import type { Mutable } from "@mainsquare/excalidraw-common/utility-types";
 
 import { generateRoughOptions } from "./shape";
 import { ShapeCache } from "./shape";

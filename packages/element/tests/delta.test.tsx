@@ -1,8 +1,8 @@
-import { API } from "@excalidraw/excalidraw/tests/helpers/api";
+import { API } from "@mainsquare/excalidraw/tests/helpers/api";
 
-import type { ObservedAppState } from "@excalidraw/excalidraw/types";
-import type { LinearElementEditor } from "@excalidraw/element";
-import type { SceneElementsMap } from "@excalidraw/element/types";
+import type { ObservedAppState } from "@mainsquare/excalidraw/types";
+import type { LinearElementEditor } from "@mainsquare/excalidraw-element";
+import type { SceneElementsMap } from "@mainsquare/excalidraw-element/types";
 
 import { AppStateDelta, Delta, ElementsDelta } from "../src/delta";
 

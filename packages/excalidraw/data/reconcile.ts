@@ -1,16 +1,16 @@
 import throttle from "lodash.throttle";
 
-import { arrayToMap, isDevEnv, isTestEnv } from "@excalidraw/common";
+import { arrayToMap, isDevEnv, isTestEnv } from "@mainsquare/excalidraw-common";
 
 import {
   orderByFractionalIndex,
   syncInvalidIndices,
   validateFractionalIndices,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import type { OrderedExcalidrawElement } from "@excalidraw/element/types";
+import type { OrderedExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
-import type { MakeBrand } from "@excalidraw/common/utility-types";
+import type { MakeBrand } from "@mainsquare/excalidraw-common/utility-types";
 
 import type { AppState } from "../types";
 

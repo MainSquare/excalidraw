@@ -1,7 +1,7 @@
 import React from "react";
 
-import type * as TExcalidraw from "@excalidraw/excalidraw";
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import type * as TExcalidraw from "@mainsquare/excalidraw";
+import type { ExcalidrawImperativeAPI } from "@mainsquare/excalidraw/types";
 
 import CustomFooter from "./CustomFooter";
 

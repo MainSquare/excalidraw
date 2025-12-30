@@ -4,9 +4,9 @@ import {
   polygonFromPoints,
   lineSegment,
   polygonIncludesPointNonZero,
-} from "@excalidraw/math";
+} from "@mainsquare/excalidraw-math";
 
-import { type Bounds } from "@excalidraw/common";
+import { type Bounds } from "@mainsquare/excalidraw-common";
 
 import {
   computeBoundTextPosition,
@@ -14,10 +14,10 @@ import {
   getBoundTextElement,
   getElementBounds,
   intersectElementWithLineSegment,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import type { ElementsSegmentsMap, GlobalPoint } from "@excalidraw/math/types";
-import type { ElementsMap, ExcalidrawElement } from "@excalidraw/element/types";
+import type { ElementsSegmentsMap, GlobalPoint } from "@mainsquare/excalidraw-math/types";
+import type { ElementsMap, ExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
 export const getLassoSelectedElementIds = (input: {
   lassoPath: GlobalPoint[];

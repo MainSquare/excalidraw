@@ -1,9 +1,9 @@
 import type {
   ExcalidrawElement,
   OrderedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
-import type { CaptureUpdateActionType } from "@excalidraw/element";
+import type { CaptureUpdateActionType } from "@mainsquare/excalidraw-element";
 
 import type {
   AppClassProperties,

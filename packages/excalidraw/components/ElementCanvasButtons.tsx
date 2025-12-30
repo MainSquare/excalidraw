@@ -1,10 +1,10 @@
-import { sceneCoordsToViewportCoords } from "@excalidraw/common";
-import { getElementAbsoluteCoords } from "@excalidraw/element";
+import { sceneCoordsToViewportCoords } from "@mainsquare/excalidraw-common";
+import { getElementAbsoluteCoords } from "@mainsquare/excalidraw-element";
 
 import type {
   ElementsMap,
   NonDeletedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import { useExcalidrawAppState } from "../components/App";
 

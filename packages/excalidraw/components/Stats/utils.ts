@@ -1,32 +1,32 @@
-import { pointFrom, pointRotateRads } from "@excalidraw/math";
+import { pointFrom, pointRotateRads } from "@mainsquare/excalidraw-math";
 
 import {
   getBoundTextElement,
   isBindingElement,
   unbindBindingElement,
-} from "@excalidraw/element";
-import { isFrameLikeElement } from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
+import { isFrameLikeElement } from "@mainsquare/excalidraw-element";
 
 import {
   getSelectedGroupIds,
   getElementsInGroup,
   isInGroup,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
-import { getFrameChildren } from "@excalidraw/element";
+import { getFrameChildren } from "@mainsquare/excalidraw-element";
 
-import { updateBindings } from "@excalidraw/element";
-import { DRAGGING_THRESHOLD } from "@excalidraw/common";
+import { updateBindings } from "@mainsquare/excalidraw-element";
+import { DRAGGING_THRESHOLD } from "@mainsquare/excalidraw-common";
 
-import type { Radians } from "@excalidraw/math";
+import type { Radians } from "@mainsquare/excalidraw-math";
 
 import type {
   ElementsMap,
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
-import type { Scene } from "@excalidraw/element";
+import type { Scene } from "@mainsquare/excalidraw-element";
 
 import type { AppState } from "../../types";
 

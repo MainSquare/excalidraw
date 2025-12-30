@@ -2,39 +2,39 @@ import {
   ArrowheadArrowIcon,
   CloseIcon,
   TrashIcon,
-} from "@excalidraw/excalidraw/components/icons";
+} from "@mainsquare/excalidraw/components/icons";
 import {
   bootstrapCanvas,
   getNormalizedCanvasDimensions,
-} from "@excalidraw/excalidraw/renderer/helpers";
-import { type AppState } from "@excalidraw/excalidraw/types";
-import { arrayToMap, throttleRAF } from "@excalidraw/common";
+} from "@mainsquare/excalidraw/renderer/helpers";
+import { type AppState } from "@mainsquare/excalidraw/types";
+import { arrayToMap, throttleRAF } from "@mainsquare/excalidraw-common";
 import { useCallback } from "react";
 
 import {
   getGlobalFixedPointForBindableElement,
   isArrowElement,
   isBindableElement,
-} from "@excalidraw/element";
+} from "@mainsquare/excalidraw-element";
 
 import {
   isLineSegment,
   type GlobalPoint,
   type LineSegment,
-} from "@excalidraw/math";
-import { isCurve } from "@excalidraw/math/curve";
+} from "@mainsquare/excalidraw-math";
+import { isCurve } from "@mainsquare/excalidraw-math/curve";
 
 import React from "react";
 
-import type { Curve } from "@excalidraw/math";
-import type { DebugElement } from "@excalidraw/common";
+import type { Curve } from "@mainsquare/excalidraw-math";
+import type { DebugElement } from "@mainsquare/excalidraw-common";
 import type {
   ElementsMap,
   ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   FixedPointBinding,
   OrderedExcalidrawElement,
-} from "@excalidraw/element/types";
+} from "@mainsquare/excalidraw-element/types";
 
 import { STORAGE_KEYS } from "../app_constants";
 

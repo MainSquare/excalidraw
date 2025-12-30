@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-import { isFiniteNumber } from "@excalidraw/math";
+import { isFiniteNumber } from "@mainsquare/excalidraw-math";
 
-import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
+import type { NonDeletedExcalidrawElement } from "@mainsquare/excalidraw-element/types";
 
 import { trackEvent } from "../../analytics";
 import { useUIAppState } from "../../context/ui-appState";
