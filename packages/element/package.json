@@ -1,6 +1,6 @@
 {
   "name": "@mainsquare/excalidraw-element",
-  "version": "0.18.0-d87620b2",
+  "version": "0.19.0-alpha-2",
   "type": "module",
   "types": "./dist/types/element/src/index.d.ts",
   "main": "./dist/prod/index.js",
@@ -57,7 +57,7 @@
     "build:esm": "rimraf dist && node ../../scripts/buildBase.js && yarn gen:types"
   },
   "dependencies": {
-    "@mainsquare/excalidraw-common": "0.18.0-d87620b2",
-    "@mainsquare/excalidraw-math": "0.18.0-d87620b2"
+    "@mainsquare/excalidraw-common": "0.19.0-alpha-2",
+    "@mainsquare/excalidraw-math": "0.19.0-alpha-2"
   }
 }
