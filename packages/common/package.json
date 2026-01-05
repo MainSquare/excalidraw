@@ -1,6 +1,6 @@
 {
   "name": "@mainsquare/excalidraw-common",
-  "version": "0.19.0-alpha-2",
+  "version": "0.19.0-alpha-2-910fa8da",
   "type": "module",
   "types": "./dist/types/common/src/index.d.ts",
   "main": "./dist/prod/index.js",
