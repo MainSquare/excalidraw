@@ -6,7 +6,12 @@ const { execSync } = require("child_process");
 const updateChangelog = require("./updateChangelog");
 
 // skipping utils for now, as it has independent release process
-const PACKAGES = ["common", "math", "element", "excalidraw"];
+const PACKAGES = [
+  "excalidraw-common",
+  "excalidraw-math",
+  "excalidraw-element",
+  "excalidraw",
+];
 const PACKAGES_DIR = path.resolve(__dirname, "../packages");
 
 /**
@@ -95,9 +100,14 @@ const validatePackageName = (packageName) => {
   }
 };
 
+const getFolderName = (packageName) => {
+  // Convert package name to folder name (e.g., "excalidraw-common" -> "common")
+  return packageName.replace("excalidraw-", "");
+};
+
 const getPackageJsonPath = (packageName) => {
   validatePackageName(packageName);
-  return path.resolve(PACKAGES_DIR, packageName, "package.json");
+  return path.resolve(PACKAGES_DIR, getFolderName(packageName), "package.json");
 };
 
 const updatePackageJsons = (nextVersion) => {
@@ -166,16 +176,13 @@ const askToCommit = (tag, nextVersion) => {
 };
 
 const buildPackages = () => {
-  console.info("Running yarn install...");
-  execSync(`yarn --frozen-lockfile`, { stdio: "inherit" });
-
   console.info("Removing existing build artifacts...");
   execSync(`yarn rm:build`, { stdio: "inherit" });
 
   for (const packageName of PACKAGES) {
     console.info(`Building "@mainsquare/${packageName}"...`);
     execSync(`yarn run build:esm`, {
-      cwd: path.resolve(PACKAGES_DIR, packageName),
+      cwd: path.resolve(PACKAGES_DIR, getFolderName(packageName)),
       stdio: "inherit",
     });
   }
@@ -207,8 +214,8 @@ const askToPublish = (tag, version) => {
 
 const publishPackages = (tag, version) => {
   for (const packageName of PACKAGES) {
-    execSync(`yarn publish --tag ${tag}`, {
-      cwd: path.resolve(PACKAGES_DIR, packageName),
+    execSync(`yarn publish --tag ${tag} --no-git-tag-version`, {
+      cwd: path.resolve(PACKAGES_DIR, getFolderName(packageName)),
       stdio: "inherit",
     });
 
