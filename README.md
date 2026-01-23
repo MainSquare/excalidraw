@@ -1,124 +1,233 @@
-<a href="https://excalidraw.com/" target="_blank" rel="noopener">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" alt="Excalidraw" srcset="https://excalidraw.nyc3.cdn.digitaloceanspaces.com/github/excalidraw_github_cover_2_dark.png" />
-    <img alt="Excalidraw" src="https://excalidraw.nyc3.cdn.digitaloceanspaces.com/github/excalidraw_github_cover_2.png" />
-  </picture>
-</a>
+# Excalidraw Monorepo
 
-<h4 align="center">
-  <a href="https://excalidraw.com">Excalidraw Editor</a> |
-  <a href="https://plus.excalidraw.com/blog">Blog</a> |
-  <a href="https://docs.excalidraw.com">Documentation</a> |
-  <a href="https://plus.excalidraw.com">Excalidraw+</a>
-</h4>
+This is a monorepo containing the Excalidraw npm packages and example applications. This repository uses Yarn Workspaces for dependency management.
 
-<div align="center">
-  <h2>
-    An open source virtual hand-drawn style whiteboard. </br>
-    Collaborative and end-to-end encrypted. </br>
-  <br />
-  </h2>
-</div>
+## Repository Structure
 
-<br />
-<p align="center">
-  <a href="https://github.com/excalidraw/excalidraw/blob/master/LICENSE">
-    <img alt="Excalidraw is released under the MIT license." src="https://img.shields.io/badge/license-MIT-blue.svg"  /></a>
-  <a href="https://www.npmjs.com/package/@mainsquare/excalidraw">
-    <img alt="npm downloads/month" src="https://img.shields.io/npm/dm/@mainsquare/excalidraw"  /></a>
-  <a href="https://docs.excalidraw.com/docs/introduction/contributing">
-    <img alt="PRs welcome!" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat"  /></a>
-  <a href="https://discord.gg/UexuTaE">
-    <img alt="Chat on Discord" src="https://img.shields.io/discord/723672430744174682?color=738ad6&label=Chat%20on%20Discord&logo=discord&logoColor=ffffff&widge=false"/></a>
-  <a href="https://deepwiki.com/excalidraw/excalidraw">
-    <img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg" /></a>
-  <a href="https://twitter.com/excalidraw">
-    <img alt="Follow Excalidraw on Twitter" src="https://img.shields.io/twitter/follow/excalidraw.svg?label=follow+@excalidraw&style=social&logo=twitter"/></a>
-</p>
+This monorepo is organized into the following packages:
 
-<div align="center">
-  <figure>
-    <a href="https://excalidraw.com" target="_blank" rel="noopener">
-      <img src="https://excalidraw.nyc3.cdn.digitaloceanspaces.com/github%2Fproduct_showcase.png" alt="Product showcase" />
-    </a>
-    <figcaption>
-      <p align="center">
-        Create beautiful hand-drawn like diagrams, wireframes, or whatever you like.
-      </p>
-    </figcaption>
-  </figure>
-</div>
+### Core Packages (in `packages/`)
 
-## Features
+- **`@mainsquare/excalidraw-common`** - Shared utilities and constants used across all packages
+- **`@mainsquare/excalidraw-math`** - Mathematical utilities for canvas operations and geometry
+- **`@mainsquare/excalidraw-element`** - Core element types and element manipulation logic
+- **`@mainsquare/excalidraw`** - Main Excalidraw React component and editor
 
-The Excalidraw editor (npm package) supports:
+### Applications
 
-- 💯&nbsp;Free & open-source.
-- 🎨&nbsp;Infinite, canvas-based whiteboard.
-- ✍️&nbsp;Hand-drawn like style.
-- 🌓&nbsp;Dark mode.
-- 🏗️&nbsp;Customizable.
-- 📷&nbsp;Image support.
-- 😀&nbsp;Shape libraries support.
-- 🌐&nbsp;Localization (i18n) support.
-- 🖼️&nbsp;Export to PNG, SVG & clipboard.
-- 💾&nbsp;Open format - export drawings as an `.excalidraw` json file.
-- ⚒️&nbsp;Wide range of tools - rectangle, circle, diamond, arrow, line, free-draw, eraser...
-- ➡️&nbsp;Arrow-binding & labeled arrows.
-- 🔙&nbsp;Undo / Redo.
-- 🔍&nbsp;Zoom and panning support.
+- **`excalidraw-app/`** - The standalone Excalidraw web application (hosted at excalidraw.com)
+- **`examples/`** - Example integrations and usage demonstrations
 
-## Excalidraw.com
+### Package Dependencies
 
-The app hosted at [excalidraw.com](https://excalidraw.com) is a minimal showcase of what you can build with Excalidraw. Its [source code](https://github.com/excalidraw/excalidraw/tree/master/excalidraw-app) is part of this repository as well, and the app features:
-
-- 📡&nbsp;PWA support (works offline).
-- 🤼&nbsp;Real-time collaboration.
-- 🔒&nbsp;End-to-end encryption.
-- 💾&nbsp;Local-first support (autosaves to the browser).
-- 🔗&nbsp;Shareable links (export to a readonly link you can share with others).
-
-We'll be adding these features as drop-in plugins for the npm package in the future.
-
-## Quick start
-
-**Note:** following instructions are for installing the Excalidraw [npm package](https://www.npmjs.com/package/@mainsquare/excalidraw) when integrating Excalidraw into your own app. To run the repository locally for development, please refer to our [Development Guide](https://docs.excalidraw.com/docs/introduction/development).
-
-Use `npm` or `yarn` to install the package.
-
-```bash
-npm install react react-dom @mainsquare/excalidraw
-# or
-yarn add react react-dom @mainsquare/excalidraw
+The packages have the following dependency hierarchy:
+```
+excalidraw (main package)
+├── excalidraw-element
+│   ├── excalidraw-math
+│   └── excalidraw-common
+└── excalidraw-common
 ```
 
-Check out our [documentation](https://docs.excalidraw.com/docs/@mainsquare/excalidraw/installation) for more details!
+## Development
 
-## Contributing
+### Prerequisites
 
-- Missing something or found a bug? [Report here](https://github.com/excalidraw/excalidraw/issues).
-- Want to contribute? Check out our [contribution guide](https://docs.excalidraw.com/docs/introduction/contributing) or let us know on [Discord](https://discord.gg/UexuTaE).
-- Want to help with translations? See the [translation guide](https://docs.excalidraw.com/docs/introduction/contributing#translating).
+- Node.js >= 18.0.0
+- Yarn 1.22.22 (managed via packageManager field)
 
-## Integrations
+### Setup
 
-- [VScode extension](https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor)
-- [npm package](https://www.npmjs.com/package/@mainsquare/excalidraw)
+```bash
+# Install dependencies
+yarn install
 
-## Who's integrating Excalidraw
+# Build all packages
+yarn build:packages
+```
 
-[Google Cloud](https://googlecloudcheatsheet.withgoogle.com/architecture) • [Meta](https://meta.com/) • [CodeSandbox](https://codesandbox.io/) • [Obsidian Excalidraw](https://github.com/zsviczian/obsidian-excalidraw-plugin) • [Replit](https://replit.com/) • [Slite](https://slite.com/) • [Notion](https://notion.so/) • [HackerRank](https://www.hackerrank.com/) • and many others
+### Available Scripts
 
-## Sponsors & support
+#### Building
 
-If you like the project, you can become a sponsor at [Open Collective](https://opencollective.com/excalidraw) or use [Excalidraw+](https://plus.excalidraw.com/).
+- `yarn build:packages` - Build all core packages in dependency order
+- `yarn build:common` - Build @mainsquare/excalidraw-common
+- `yarn build:math` - Build @mainsquare/excalidraw-math
+- `yarn build:element` - Build @mainsquare/excalidraw-element
+- `yarn build:excalidraw` - Build @mainsquare/excalidraw
+- `yarn build:app` - Build the standalone Excalidraw application
+- `yarn build` - Build everything (packages + app)
 
-## Thank you for supporting Excalidraw
+#### Development
 
-[<img src="https://opencollective.com/excalidraw/tiers/sponsors/0/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/0/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/1/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/1/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/2/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/2/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/3/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/3/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/4/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/4/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/5/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/5/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/6/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/6/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/7/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/7/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/8/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/8/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/9/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/9/website) [<img src="https://opencollective.com/excalidraw/tiers/sponsors/10/avatar.svg?avatarHeight=120"/>](https://opencollective.com/excalidraw/tiers/sponsors/10/website)
+- `yarn start` - Start the development server for the Excalidraw app
+- `yarn start:example` - Build packages and start the example application
 
-<a href="https://opencollective.com/excalidraw#category-CONTRIBUTE" target="_blank"><img src="https://opencollective.com/excalidraw/tiers/backers.svg?avatarHeight=32"/></a>
+#### Testing
 
-Last but not least, we're thankful to these companies for offering their services for free:
+- `yarn test` - Run tests with Vitest
+- `yarn test:all` - Run all tests (type checking, linting, unit tests)
+- `yarn test:typecheck` - Run TypeScript type checking
+- `yarn test:code` - Run ESLint
+- `yarn test:coverage` - Generate test coverage report
+- `yarn test:ui` - Open Vitest UI with coverage
 
-[![Vercel](./.github/assets/vercel.svg)](https://vercel.com) [![Sentry](./.github/assets/sentry.svg)](https://sentry.io) [![Crowdin](./.github/assets/crowdin.svg)](https://crowdin.com)
+#### Code Quality
+
+- `yarn fix` - Auto-fix formatting and linting issues
+- `yarn fix:code` - Auto-fix ESLint issues
+- `yarn fix:other` - Auto-fix Prettier formatting
+
+#### Cleaning
+
+- `yarn rm:build` - Remove all build artifacts
+- `yarn rm:node_modules` - Remove all node_modules
+- `yarn clean-install` - Clean node_modules and reinstall
+
+## Deployment & Publishing
+
+### Package Release Process
+
+The repository includes an automated release script that handles versioning, building, and publishing all packages to npm.
+
+#### Release Commands
+
+```bash
+# Test release (default) - publishes with "test" tag and commit hash suffix
+yarn release
+
+# Next release - publishes with "next" tag and commit hash suffix
+yarn release:next
+
+# Latest stable release - requires version number
+yarn release:latest --version=X.Y.Z
+```
+
+#### Detailed Release Usage
+
+The release script (`scripts/release.js`) supports the following options:
+
+**Test Release** (for development/testing):
+```bash
+yarn release
+# or explicitly
+yarn release --tag=test
+```
+- Publishes with `test` tag
+- Version: `current-version-[commit-hash]`
+- Use case: Testing package changes before official release
+
+**Next Release** (for pre-release versions):
+```bash
+yarn release:next
+
+# On CI/CD (skip interactive prompts)
+yarn release --tag=next --non-interactive
+```
+- Publishes with `next` tag
+- Version: `current-version-[commit-hash]`
+- Use case: Beta/alpha releases, early access features
+
+**Latest Release** (for stable versions):
+```bash
+yarn release:latest --version=0.19.0
+```
+- Publishes with `latest` tag
+- Version: Must be explicitly specified
+- Updates CHANGELOG.md automatically
+- Prompts for git commit creation
+- Use case: Official stable releases
+
+#### What the Release Script Does
+
+1. **Builds all packages** - Removes old build artifacts and builds fresh
+2. **Updates versions** - Sets the same version across all packages and their internal dependencies
+3. **Updates changelog** - (latest releases only) Automatically generates changelog entries
+4. **Commits changes** - (latest releases only, optional) Creates a git commit with the changes
+5. **Publishes to npm** - Publishes all packages with the specified tag
+
+#### Release Options
+
+- `--tag=<tag>` - `test` (default), `next`, or `latest`
+- `--version=<version>` - Optional for test/next, required for latest (e.g., `0.19.0`)
+- `--non-interactive` - Skip interactive prompts (useful for CI/CD)
+- `--help` - Display help information
+
+#### Interactive vs Non-Interactive Mode
+
+By default, the release script runs in interactive mode and will prompt you to:
+- Commit changes to git (latest releases only)
+- Publish packages to npm
+
+For CI/CD pipelines, use `--non-interactive` to automatically publish without prompts.
+
+### Application Deployment
+
+The `excalidraw-app` can be built for production:
+
+```bash
+# Build the app
+yarn build:app
+
+# Build for preview environments
+yarn build:preview
+
+# Build with Docker
+yarn build:app:docker
+```
+
+## Package Structure
+
+Each package in `packages/` follows this structure:
+
+```
+packages/
+├── common/
+│   ├── src/           # TypeScript source files
+│   ├── dist/          # Compiled output (gitignored)
+│   ├── package.json
+│   └── tsconfig.json
+├── math/
+├── element/
+└── excalidraw/
+```
+
+## Working with Packages
+
+### Making Changes
+
+1. Make your changes in the relevant package(s)
+2. Run `yarn test:all` to ensure all tests pass
+3. Build packages: `yarn build:packages`
+4. Test in the example app: `yarn start:example`
+
+### Publishing Changes
+
+After merging changes to main:
+
+```bash
+# For stable release
+yarn release:latest --version=0.20.0
+
+# For pre-release
+yarn release:next
+```
+
+The script will guide you through committing and publishing.
+
+## Continuous Integration
+
+The repository uses the following CI checks:
+- Type checking (`yarn test:typecheck`)
+- Linting (`yarn test:code`)
+- Unit tests (`yarn test:app`)
+- Code formatting (`yarn test:other`)
+
+All checks must pass before merging.
+
+## Notes
+
+- All packages are published under the `@mainsquare` scope
+- Packages maintain synchronized versions during releases
+- The release script ensures consistent versioning across all internal dependencies
+- Changes to any package require rebuilding dependent packages

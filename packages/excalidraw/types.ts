@@ -694,6 +694,16 @@ export type UIOptions = Partial<{
   desktopUIMode?: EditorInterface["desktopUIMode"];
   /** @deprecated does nothing. Will be removed in 0.15 */
   welcomeScreen?: boolean;
+  /**
+   * Whether to show the user list (collaborators).
+   * Defaults to true if not specified.
+   */
+  showUserList?: boolean;
+  /**
+   * Whether to show the sidebar trigger button.
+   * Defaults to true if not specified.
+   */
+  showSidebarTrigger?: boolean;
 }>;
 
 export type AppProps = Merge<

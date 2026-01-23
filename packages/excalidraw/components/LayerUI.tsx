@@ -409,12 +409,13 @@ const LayerUI = ({
               },
             )}
           >
-            {appState.collaborators.size > 0 && (
-              <UserList
-                collaborators={appState.collaborators}
-                userToFollow={appState.userToFollow?.socketId || null}
-              />
-            )}
+            {appState.collaborators.size > 0 &&
+              UIOptions.showUserList !== false && (
+                <UserList
+                  collaborators={appState.collaborators}
+                  userToFollow={appState.userToFollow?.socketId || null}
+                />
+              )}
             {renderTopRightUI?.(
               editorInterface.formFactor === "phone",
               appState,
@@ -423,7 +424,8 @@ const LayerUI = ({
               appState.openDialog?.name !== "elementLinkSelector" &&
               // hide button when sidebar docked
               (!isSidebarDocked ||
-                appState.openSidebar?.name !== DEFAULT_SIDEBAR.name) && (
+                appState.openSidebar?.name !== DEFAULT_SIDEBAR.name) &&
+              UIOptions.showSidebarTrigger !== false && (
                 <tunnels.DefaultSidebarTriggerTunnel.Out />
               )}
             {shouldShowStats && (
@@ -470,23 +472,25 @@ const LayerUI = ({
           tunneled away. We only render tunneled components that actually
         have defaults when host do not render anything. */}
       <DefaultMainMenu UIOptions={UIOptions} />
-      <DefaultSidebar.Trigger
-        __fallback
-        icon={sidebarRightIcon}
-        title={capitalizeString(t("toolBar.library"))}
-        onToggle={(open) => {
-          if (open) {
-            trackEvent(
-              "sidebar",
-              `${DEFAULT_SIDEBAR.name} (open)`,
-              `button (${
-                editorInterface.formFactor === "phone" ? "mobile" : "desktop"
-              })`,
-            );
-          }
-        }}
-        tab={DEFAULT_SIDEBAR.defaultTab}
-      />
+      {UIOptions.showSidebarTrigger !== false && (
+        <DefaultSidebar.Trigger
+          __fallback
+          icon={sidebarRightIcon}
+          title={capitalizeString(t("toolBar.library"))}
+          onToggle={(open) => {
+            if (open) {
+              trackEvent(
+                "sidebar",
+                `${DEFAULT_SIDEBAR.name} (open)`,
+                `button (${
+                  editorInterface.formFactor === "phone" ? "mobile" : "desktop"
+                })`,
+              );
+            }
+          }}
+          tab={DEFAULT_SIDEBAR.defaultTab}
+        />
+      )}
       <DefaultOverwriteConfirmDialog />
       {appState.openDialog?.name === "ttd" && <TTDDialog __fallback />}
       {/* ------------------------------------------------------------------ */}
