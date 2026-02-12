@@ -1,3 +1,5 @@
+> THIS IS A PUBLIC FORK, do not put anything related to other Mainsquare projects here
+
 # Excalidraw Monorepo
 
 This is a monorepo containing the Excalidraw npm packages and example applications. This repository uses Yarn Workspaces for dependency management.
@@ -21,6 +23,7 @@ This monorepo is organized into the following packages:
 ### Package Dependencies
 
 The packages have the following dependency hierarchy:
+
 ```
 excalidraw (main package)
 ├── excalidraw-element
@@ -41,10 +44,41 @@ excalidraw (main package)
 ```bash
 # Install dependencies
 yarn install
-
-# Build all packages
-yarn build:packages
 ```
+
+### Regular development flow
+
+In order to test new Excalidraw functionality, you will usually execute:
+
+```bash
+# Always run this before running start example
+yarn rm:build
+
+# Builds the packages and starts the example app
+yarn start:example
+```
+
+Now that you've tested the new functionality, you might want to test it integrated directly with the app, to do that we're using yarn link to link the package and use our local build.
+
+```bash
+    yarn rm:build
+    yarn build:packages
+
+    # On this project
+    cd ./packages/excalidraw && yarn link
+
+    # On the other project you want to use it
+    yarn link @mainsquare/excalidraw
+```
+
+To unlink and get back to using the registry build
+
+```bash
+    yarn unlink @mainsquare/excalidraw
+    yarn install --force
+```
+
+Have you being satisfied with you code changes you might want to publish it on the registry, check out the release section on this doc.
 
 ### Available Scripts
 
@@ -60,7 +94,7 @@ yarn build:packages
 
 #### Development
 
-- `yarn start` - Start the development server for the Excalidraw app
+- `yarn start` - Start the development server for the Excalidraw app (Not working, use start:example to test)
 - `yarn start:example` - Build packages and start the example application
 
 #### Testing
@@ -108,30 +142,36 @@ yarn release:latest --version=X.Y.Z
 The release script (`scripts/release.js`) supports the following options:
 
 **Test Release** (for development/testing):
+
 ```bash
 yarn release
 # or explicitly
 yarn release --tag=test
 ```
+
 - Publishes with `test` tag
 - Version: `current-version-[commit-hash]`
 - Use case: Testing package changes before official release
 
 **Next Release** (for pre-release versions):
+
 ```bash
 yarn release:next
 
 # On CI/CD (skip interactive prompts)
 yarn release --tag=next --non-interactive
 ```
+
 - Publishes with `next` tag
 - Version: `current-version-[commit-hash]`
 - Use case: Beta/alpha releases, early access features
 
 **Latest Release** (for stable versions):
+
 ```bash
 yarn release:latest --version=0.19.0
 ```
+
 - Publishes with `latest` tag
 - Version: Must be explicitly specified
 - Updates CHANGELOG.md automatically
@@ -156,6 +196,7 @@ yarn release:latest --version=0.19.0
 #### Interactive vs Non-Interactive Mode
 
 By default, the release script runs in interactive mode and will prompt you to:
+
 - Commit changes to git (latest releases only)
 - Publish packages to npm
 
@@ -218,6 +259,7 @@ The script will guide you through committing and publishing.
 ## Continuous Integration
 
 The repository uses the following CI checks:
+
 - Type checking (`yarn test:typecheck`)
 - Linting (`yarn test:code`)
 - Unit tests (`yarn test:app`)
