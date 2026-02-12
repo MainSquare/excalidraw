@@ -250,7 +250,11 @@ import {
   maxBindingDistance_simple,
 } from "@mainsquare/excalidraw-element";
 
-import type { GlobalPoint, LocalPoint, Radians } from "@mainsquare/excalidraw-math";
+import type {
+  GlobalPoint,
+  LocalPoint,
+  Radians,
+} from "@mainsquare/excalidraw-math";
 
 import type {
   ExcalidrawElement,
@@ -278,7 +282,10 @@ import type {
   ExcalidrawBindableElement,
 } from "@mainsquare/excalidraw-element/types";
 
-import type { Mutable, ValueOf } from "@mainsquare/excalidraw-common/utility-types";
+import type {
+  Mutable,
+  ValueOf,
+} from "@mainsquare/excalidraw-common/utility-types";
 
 import {
   actionAddToLibrary,
@@ -417,6 +424,8 @@ import { LassoTrail } from "../lasso";
 import { EraserTrail } from "../eraser";
 
 import { getShortcutKey } from "../shortcut";
+
+import { erasePixelFromFreeDraw } from "../eraser/pixelEraser";
 
 import ConvertElementTypePopup, {
   getConversionTypeFromElements,
@@ -632,6 +641,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private elementsPendingErasure: ElementsPendingErasure = new Set();
+  private didPixelEraseInCurrentStroke = false;
 
   public flowChartCreator: FlowChartCreator = new FlowChartCreator();
   private flowChartNavigator: FlowChartNavigator = new FlowChartNavigator();
@@ -6806,11 +6816,63 @@ class App extends React.Component<AppProps, AppState> {
     event: PointerEvent,
     scenePointer: { x: number; y: number },
   ) => {
-    const elementsToErase = this.eraserTrail.addPointToPath(
-      scenePointer.x,
-      scenePointer.y,
-      event.altKey,
-    );
+    const { elementsToErase, erasedFreeDrawElements } =
+      this.eraserTrail.addPointToPath(
+        scenePointer.x,
+        scenePointer.y,
+        event.altKey,
+      );
+
+    if (erasedFreeDrawElements.length > 0) {
+      const eraserPath = this.eraserTrail.getCurrentTrail()?.originalPoints;
+
+      if (eraserPath && eraserPath.length >= 2) {
+        const globalPath: GlobalPoint[] = eraserPath.map((p) =>
+          pointFrom<GlobalPoint>(p[0], p[1]),
+        );
+
+        const currentElementsMap = this.scene.getNonDeletedElementsMap();
+
+        const replacements = new Map<
+          ExcalidrawElement["id"],
+          readonly ExcalidrawElement[]
+        >();
+
+        for (const element of erasedFreeDrawElements) {
+          const currentEl = currentElementsMap.get(element.id);
+          if (
+            !currentEl ||
+            currentEl.isDeleted ||
+            currentEl.type !== "freedraw"
+          ) {
+            continue;
+          }
+
+          const newFragments = erasePixelFromFreeDraw(
+            currentEl,
+            globalPath,
+            this.state.zoom.value,
+          );
+
+          if (newFragments.length === 0) {
+            replacements.set(currentEl.id, [
+              newElementWith(currentEl, { isDeleted: true }),
+            ]);
+          } else {
+            replacements.set(currentEl.id, newFragments);
+          }
+        }
+
+        if (replacements.size > 0) {
+          const nextElements = this.scene
+            .getElementsIncludingDeleted()
+            .flatMap((el) => replacements.get(el.id) ?? el);
+
+          this.scene.replaceAllElements(nextElements);
+          this.didPixelEraseInCurrentStroke = true;
+        }
+      }
+    }
 
     this.elementsPendingErasure = new Set(elementsToErase);
     this.triggerRender();
@@ -7330,6 +7392,7 @@ class App extends React.Component<AppProps, AppState> {
     );
 
     if (this.state.activeTool.type === "eraser") {
+      this.didPixelEraseInCurrentStroke = false;
       this.eraserTrail.startPath(
         pointerDownState.lastCoords.x,
         pointerDownState.lastCoords.y,
@@ -9724,7 +9787,8 @@ class App extends React.Component<AppProps, AppState> {
       this.translateCanvas({
         scrollX:
           this.state.scrollX -
-          (restrictedDeltaX * (currentScrollBars.horizontal?.deltaMultiplier || 1)) /
+          (restrictedDeltaX *
+            (currentScrollBars.horizontal?.deltaMultiplier || 1)) /
             this.state.zoom.value,
       });
       pointerDownState.lastCoords.x = x;
@@ -9742,7 +9806,8 @@ class App extends React.Component<AppProps, AppState> {
       this.translateCanvas({
         scrollY:
           this.state.scrollY -
-          (restrictedDeltaY * (currentScrollBars.vertical?.deltaMultiplier || 1)) /
+          (restrictedDeltaY *
+            (currentScrollBars.vertical?.deltaMultiplier || 1)) /
             this.state.zoom.value,
       });
       pointerDownState.lastCoords.y = y;
@@ -10409,6 +10474,10 @@ class App extends React.Component<AppProps, AppState> {
           );
         }
         this.eraseElements();
+        if (this.didPixelEraseInCurrentStroke) {
+          this.store.scheduleCapture();
+          this.didPixelEraseInCurrentStroke = false;
+        }
         return;
       } else if (this.elementsPendingErasure.size) {
         this.restoreReadyToEraseElements();
