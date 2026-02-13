@@ -69,17 +69,17 @@ const getArguments = () => {
 
   if (!version) {
     // set the next version based on the excalidraw package version + commit hash
-    const excalidrawPackageVersion = require(getPackageJsonPath(
-      "excalidraw",
-    )).version;
+    const rawVersion = require(getPackageJsonPath("excalidraw")).version;
+    // strip any existing pre-release suffix (e.g. -test-abc1234)
+    const baseVersion = rawVersion.replace(/-.*$/, "");
 
     const hash = getShortCommitHash();
 
-    if (!excalidrawPackageVersion.includes(hash)) {
-      version = `${excalidrawPackageVersion}-test-${hash}`;
+    if (!rawVersion.includes(hash)) {
+      version = `${baseVersion}-test-${hash}`;
     } else {
       // ensuring idempotency
-      version = excalidrawPackageVersion;
+      version = rawVersion;
     }
   }
 
