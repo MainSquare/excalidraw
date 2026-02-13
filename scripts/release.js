@@ -76,7 +76,7 @@ const getArguments = () => {
     const hash = getShortCommitHash();
 
     if (!excalidrawPackageVersion.includes(hash)) {
-      version = `${excalidrawPackageVersion}-${hash}`;
+      version = `${excalidrawPackageVersion}-test-${hash}`;
     } else {
       // ensuring idempotency
       version = excalidrawPackageVersion;

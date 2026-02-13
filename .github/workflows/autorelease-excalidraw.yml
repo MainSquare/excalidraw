@@ -1,27 +1,55 @@
-name: Auto release excalidraw next
+name: Auto release excalidraw
 on:
   push:
     branches:
-      - release
+      - production
+      - staging
 
 jobs:
-  Auto-release-excalidraw-next:
+  Auto-release-excalidraw:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 20.x
       - name: Set up publish access
         run: |
-          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm config set //registry.teleo.space/:_authToken ${VERDACCIO_TOKEN}
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Auto release
+          VERDACCIO_TOKEN: ${{ secrets.VERDACCIO_TOKEN }}
+
+      # Compute next semantic version from conventional commits (production only)
+      - name: Compute next version
+        if: github.ref == 'refs/heads/production'
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: production
+
+      - name: Auto release (production)
+        if: github.ref == 'refs/heads/production'
         run: |
           yarn add @actions/core -W
-          yarn release --tag=next --non-interactive
+          yarn release --tag=latest --version=${{ steps.semver.outputs.nextStrict }} --non-interactive
+
+      - name: Auto release (staging)
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          yarn add @actions/core -W
+          yarn release --tag=test --non-interactive
+
+      # Commit and push updated package.json files back to the branch
+      - name: Commit version changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/*/package.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: release @excalidraw/excalidraw@$(node -p "require('./packages/excalidraw/package.json').version")"
+          git push
