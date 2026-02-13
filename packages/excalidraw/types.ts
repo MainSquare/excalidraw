@@ -161,6 +161,12 @@ export type ToolType =
 
 export type ElementOrToolType = ExcalidrawElementType | ToolType | "custom";
 
+export type PanningMode =
+  | "free"
+  | "fixed"
+  | "horizontalFixed"
+  | "verticalFixed";
+
 export type ActiveTool =
   | {
       type: ToolType;
@@ -464,6 +470,8 @@ export interface AppState {
   // and also remove groupId from this map
   lockedMultiSelections: { [groupId: string]: true };
   bindMode: BindMode;
+  /** canvas panning mode restriction */
+  panningMode: PanningMode;
 }
 
 export type SearchMatch = {
@@ -694,6 +702,16 @@ export type UIOptions = Partial<{
   ) => EditorInterface["formFactor"];
   /** @deprecated does nothing. Will be removed in 0.15 */
   welcomeScreen?: boolean;
+  /**
+   * Whether to show the user list (collaborators).
+   * Defaults to true if not specified.
+   */
+  showUserList?: boolean;
+  /**
+   * Whether to show the sidebar trigger button.
+   * Defaults to true if not specified.
+   */
+  showSidebarTrigger?: boolean;
 }>;
 
 export type AppProps = Merge<

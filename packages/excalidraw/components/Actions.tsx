@@ -51,6 +51,13 @@ import { useTextEditorFocus } from "../hooks/useTextEditorFocus";
 
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 
+import {
+  noPanningIcon,
+  leftRightIcon,
+  upDownIcon,
+  crossArrowsIcon,
+} from "./icons";
+
 import { getToolbarTools } from "./shapes";
 
 import "./Actions.scss";
@@ -59,6 +66,8 @@ import {
   useEditorInterface,
   useStylesPanelMode,
   useExcalidrawContainer,
+  useExcalidrawAppState,
+  useExcalidrawSetAppState,
 } from "./App";
 import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
@@ -82,6 +91,7 @@ import {
   DotsHorizontalIcon,
   SelectionIcon,
   pencilIcon,
+  LockedIcon,
 } from "./icons";
 
 import { Island } from "./Island";
@@ -1286,9 +1296,67 @@ export const ZoomActions = ({
       {renderAction("zoomOut")}
       {renderAction("resetZoom")}
       {renderAction("zoomIn")}
+      <PanningModeControl />
     </Stack.Row>
   </Stack.Col>
 );
+
+const PanningModeControl = () => {
+  const appState = useExcalidrawAppState();
+  const setAppState = useExcalidrawSetAppState();
+  const [open, setOpen] = useState(false);
+
+  const setMode = (mode: AppState["panningMode"]) => {
+    setAppState({ panningMode: mode });
+    setOpen(false);
+  };
+
+  return (
+    <DropdownMenu open={open}>
+      <DropdownMenu.Trigger
+        className="ToolIcon ToolIcon_type_button ToolIcon_size_medium zoom-button panning-mode-trigger override-rounded-button"
+        onToggle={() => setOpen((v) => !v)}
+        title={t("labels.panningMode")}
+      >
+        <div className="ToolIcon__icon">{LockedIcon}</div>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
+        onClickOutside={() => setOpen(false)}
+        onSelect={() => setOpen(false)}
+        className="App-toolbar__panning-mode-dropdown"
+      >
+        <DropdownMenu.Item
+          onSelect={() => setMode("free")}
+          selected={appState.panningMode === "free"}
+          icon={crossArrowsIcon}
+        >
+          {t("labels.freeMode")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => setMode("fixed")}
+          selected={appState.panningMode === "fixed"}
+          icon={noPanningIcon}
+        >
+          {t("labels.fixedMode")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => setMode("horizontalFixed")}
+          selected={appState.panningMode === "horizontalFixed"}
+          icon={upDownIcon}
+        >
+          {t("labels.horizontalFixedMode")}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => setMode("verticalFixed")}
+          selected={appState.panningMode === "verticalFixed"}
+          icon={leftRightIcon}
+        >
+          {t("labels.verticalFixedMode")}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
 
 export const UndoRedoActions = ({
   renderAction,

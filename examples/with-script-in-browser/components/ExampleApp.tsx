@@ -116,6 +116,8 @@ export default function ExampleApp({
     {},
   );
   const [comment, setComment] = useState<Comment | null>(null);
+  const [showUserList, setShowUserList] = useState(true);
+  const [showSidebarTrigger, setShowSidebarTrigger] = useState(true);
 
   const initialStatePromiseRef = useRef<{
     promise: ResolvablePromise<ExcalidrawInitialDataState | null>;
@@ -202,6 +204,8 @@ export default function ExampleApp({
             loadScene: false,
           },
           tools: { image: !disableImageTool },
+          showUserList,
+          showSidebarTrigger,
         },
         renderTopRightUI,
         onLinkOpen,
@@ -773,6 +777,22 @@ export default function ExampleApp({
               }}
             />
             Show collaborators
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showUserList}
+              onChange={() => setShowUserList(!showUserList)}
+            />
+            Show user list
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showSidebarTrigger}
+              onChange={() => setShowSidebarTrigger(!showSidebarTrigger)}
+            />
+            Show sidebar trigger
           </label>
           <div>
             <button onClick={onCopy.bind(null, "png")}>
