@@ -5,6 +5,9 @@ on:
       - production
       - staging
 
+permissions:
+  contents: write
+
 jobs:
   Auto-release-excalidraw:
     runs-on: ubuntu-latest

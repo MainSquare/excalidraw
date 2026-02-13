@@ -686,7 +686,6 @@ const copyTextViaExecCommand = (text: string | null) => {
   textarea.style.top = `${yPosition}px`;
   // Prevent zooming on iOS
   textarea.style.fontSize = "12pt";
-
   textarea.setAttribute("readonly", "");
   textarea.value = text;
 
