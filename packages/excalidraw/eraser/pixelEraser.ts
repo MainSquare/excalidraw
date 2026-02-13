@@ -2,13 +2,14 @@ import {
   newElementWith,
   newFreeDrawElement,
 } from "@mainsquare/excalidraw-element";
-import { pointFrom } from "@mainsquare/excalidraw-math";
+import { pointFrom, pointRotateRads } from "@mainsquare/excalidraw-math";
 import { nanoid } from "nanoid";
 
 import type { ExcalidrawFreeDrawElement } from "@mainsquare/excalidraw-element/types";
 import type {
   GlobalPoint,
   LocalPoint,
+  Radians,
 } from "@mainsquare/excalidraw-math/types";
 
 type Point = [number, number];
@@ -86,11 +87,26 @@ export const erasePixelFromFreeDraw = (
   const eraserCenter: Point = [p2[0], p2[1]];
   const radius = ERASER_RADIUS;
 
-  // FreeDraw points are offsets from [element.x, element.y]
-  const globalPoints: Point[] = element.points.map((p) => [
-    element.x + p[0],
-    element.y + p[1],
-  ]);
+  // FreeDraw points are offsets from [element.x, element.y].
+  // When element.angle != 0, we must rotate each point around the element
+  // center to get the true global position.
+  const cx = element.x + element.width / 2;
+  const cy = element.y + element.height / 2;
+  const angle = element.angle as Radians;
+
+  const globalPoints: Point[] = element.points.map((p) => {
+    const gx = element.x + p[0];
+    const gy = element.y + p[1];
+    if (angle === 0) {
+      return [gx, gy] as Point;
+    }
+    const rotated = pointRotateRads(
+      pointFrom<GlobalPoint>(gx, gy),
+      pointFrom<GlobalPoint>(cx, cy),
+      angle,
+    );
+    return [rotated[0], rotated[1]] as Point;
+  });
 
   const fragments: Point[][] = [];
   let currentFragment: Point[] = [];
@@ -169,12 +185,28 @@ export const erasePixelFromFreeDraw = (
       id: string;
     },
   ): ExcalidrawFreeDrawElement => {
+    // Fragment points are in global (rotated) space. Un-rotate them around
+    // the original element center to recover the unrotated coordinate frame,
+    // since each fragment element will carry element.angle and re-apply
+    // the rotation during rendering.
+    const unrotatedPoints: Point[] =
+      angle === 0
+        ? fragmentPoints
+        : fragmentPoints.map(([x, y]) => {
+            const ur = pointRotateRads(
+              pointFrom<GlobalPoint>(x, y),
+              pointFrom<GlobalPoint>(cx, cy),
+              -angle as Radians,
+            );
+            return [ur[0], ur[1]] as Point;
+          });
+
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
 
-    fragmentPoints.forEach(([x, y]) => {
+    unrotatedPoints.forEach(([x, y]) => {
       if (x < minX) {
         minX = x;
       }
@@ -189,7 +221,7 @@ export const erasePixelFromFreeDraw = (
       }
     });
 
-    const localPoints: LocalPoint[] = fragmentPoints.map(([x, y]) =>
+    const localPoints: LocalPoint[] = unrotatedPoints.map(([x, y]) =>
       pointFrom<LocalPoint>(x - minX, y - minY),
     );
 
