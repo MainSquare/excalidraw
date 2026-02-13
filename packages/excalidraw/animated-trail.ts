@@ -15,7 +15,6 @@ import type { AppState } from "./types";
 export interface Trail {
   start(container: SVGSVGElement): void;
   stop(): void;
-
   startPath(x: number, y: number): void;
   addPointToPath(x: number, y: number): void;
   endPath(): void;
