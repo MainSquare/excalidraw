@@ -35,17 +35,35 @@ jobs:
           token: ${{ github.token }}
           branch: production
 
+      # Determine the version for summary purposes
+      - name: Set release version output
+        id: release-info
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/production" ]; then
+            echo "version=${{ steps.semver.outputs.nextStrict }}" >> "$GITHUB_OUTPUT"
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+          else
+            VERSION=$(node -p "require('./packages/excalidraw/package.json').version")
+            HASH=$(git rev-parse --short HEAD)
+            echo "version=${VERSION}-test-${HASH}" >> "$GITHUB_OUTPUT"
+            echo "tag=test" >> "$GITHUB_OUTPUT"
+            echo "environment=staging" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Auto release (production)
         if: github.ref == 'refs/heads/production'
         run: |
           yarn add @actions/core -W
           yarn release --tag=latest --version=${{ steps.semver.outputs.nextStrict }} --non-interactive
+          echo "::notice::Built and published @excalidraw/excalidraw@${{ steps.semver.outputs.nextStrict }} (latest)"
 
       - name: Auto release (staging)
         if: github.ref == 'refs/heads/staging'
         run: |
           yarn add @actions/core -W
           yarn release --tag=test --non-interactive
+          echo "::notice::Built and published @excalidraw/excalidraw@${{ steps.release-info.outputs.version }} (test)"
 
       # Commit and push updated package.json files back to the branch
       - name: Commit version changes
@@ -56,3 +74,30 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "chore: release @excalidraw/excalidraw@$(node -p "require('./packages/excalidraw/package.json').version")"
           git push
+          echo "::notice::Committed and pushed version changes to ${{ steps.release-info.outputs.environment }}"
+
+      # Job summary
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## Excalidraw Release Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Build | ${{ steps.release-info.outputs.version && '✅' || '❌' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Published to Verdaccio | \`@excalidraw/excalidraw@${{ steps.release-info.outputs.version }}\` (\`${{ steps.release-info.outputs.tag }}\`) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Environment | \`${{ steps.release-info.outputs.environment }}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+      # Slack notification
+      - name: Slack Notify
+        if: success() || failure()
+        uses: rtCamp/action-slack-notify@v2.3.0
+        env:
+          SLACK_CHANNEL: github-actions-builds
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: https://avatars.slack-edge.com/2023-08-15/5758526184049_cd37fb49ae14a082ebb7_44.png
+          SLACK_MESSAGE: "Published `@excalidraw/excalidraw@${{ steps.release-info.outputs.version }}` (`${{ steps.release-info.outputs.tag }}`) to Verdaccio"
+          SLACK_MESSAGE_ON_FAILURE: "Release failed for `${{ steps.release-info.outputs.environment }}` branch"
+          SLACK_TITLE: "Excalidraw Release - ${{ steps.release-info.outputs.environment }}"
+          SLACK_USERNAME: Teleo Bot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_BUILDS_WEBHOOK }}
