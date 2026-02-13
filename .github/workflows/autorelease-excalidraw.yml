@@ -44,9 +44,9 @@ jobs:
             echo "tag=latest" >> "$GITHUB_OUTPUT"
             echo "environment=production" >> "$GITHUB_OUTPUT"
           else
-            VERSION=$(node -p "require('./packages/excalidraw/package.json').version")
+            BASE_VERSION=$(node -p "require('./packages/excalidraw/package.json').version.replace(/-.*$/, '')")
             HASH=$(git rev-parse --short HEAD)
-            echo "version=${VERSION}-test-${HASH}" >> "$GITHUB_OUTPUT"
+            echo "version=${BASE_VERSION}-test-${HASH}" >> "$GITHUB_OUTPUT"
             echo "tag=test" >> "$GITHUB_OUTPUT"
             echo "environment=staging" >> "$GITHUB_OUTPUT"
           fi

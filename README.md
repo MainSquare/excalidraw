@@ -122,7 +122,17 @@ Have you being satisfied with you code changes you might want to publish it on t
 
 ### Package Release Process
 
-The repository includes an automated release script that handles versioning, building, and publishing all packages to npm.
+The repository includes an automated release script that handles versioning, building, and publishing all packages to npm. You should not be releasing versions manually generally, here's how it works:
+
+#### Releasing test version
+
+Just throw your changes at staging, it will generate a test version based on your commits, it uses [semantic versioning](https://semver.org/) with [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) to determine how will the next version be computed.
+
+It will generate a new version based of the current version on package.json, and it will append -test-<commit sha> to that version. you should be able to easily grab that and throw in your application.
+
+#### Releasing Definitive version
+
+Once you want to produce a new official version, merge it on production branch from master branch (please DON'T SQUASH) and it should read all commits to produce the new official version.
 
 #### Release Commands
 
