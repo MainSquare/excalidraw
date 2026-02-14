@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { newFreeDrawElement } from "@mainsquare/excalidraw-element";
-import { pointFrom } from "@mainsquare/excalidraw-math";
+import { newFreeDrawElement } from "@excalidraw/element";
+import { pointFrom } from "@excalidraw/math";
 
-import type { GlobalPoint } from "@mainsquare/excalidraw-math/types";
+import type { GlobalPoint } from "@excalidraw/math/types";
 
 import { erasePixelFromFreeDraw } from "./pixelEraser";
 
