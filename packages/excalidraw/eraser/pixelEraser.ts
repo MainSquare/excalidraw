@@ -1,16 +1,9 @@
-import {
-  newElementWith,
-  newFreeDrawElement,
-} from "@mainsquare/excalidraw-element";
-import { pointFrom, pointRotateRads } from "@mainsquare/excalidraw-math";
+import { newElementWith, newFreeDrawElement } from "@excalidraw/element";
+import { pointFrom, pointRotateRads } from "@excalidraw/math";
 import { nanoid } from "nanoid";
 
-import type { ExcalidrawFreeDrawElement } from "@mainsquare/excalidraw-element/types";
-import type {
-  GlobalPoint,
-  LocalPoint,
-  Radians,
-} from "@mainsquare/excalidraw-math/types";
+import type { ExcalidrawFreeDrawElement } from "@excalidraw/element/types";
+import type { GlobalPoint, LocalPoint, Radians } from "@excalidraw/math/types";
 
 type Point = [number, number];
 
