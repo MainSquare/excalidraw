@@ -189,6 +189,17 @@ export const actionZoomIn = register({
     (event[KEYS.CTRL_OR_CMD] || event.shiftKey),
 });
 
+const getMinZoomForCanvasBounds = (appState: Readonly<AppState>) => {
+  if (!appState.canvasBounds || appState.width <= 0 || appState.height <= 0) {
+    return MIN_ZOOM;
+  }
+  return Math.min(
+    MIN_ZOOM,
+    appState.width / appState.canvasBounds.width,
+    appState.height / appState.canvasBounds.height,
+  );
+};
+
 export const actionZoomOut = register({
   name: "zoomOut",
   label: "buttons.zoomOut",
@@ -196,6 +207,7 @@ export const actionZoomOut = register({
   viewMode: true,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
+    const minZoom = getMinZoomForCanvasBounds(appState);
     return {
       appState: {
         ...appState,
@@ -203,7 +215,10 @@ export const actionZoomOut = register({
           {
             viewportX: appState.width / 2 + appState.offsetLeft,
             viewportY: appState.height / 2 + appState.offsetTop,
-            nextZoom: getNormalizedZoom(appState.zoom.value - ZOOM_STEP),
+            nextZoom: getNormalizedZoom(
+              appState.zoom.value - ZOOM_STEP,
+              minZoom,
+            ),
           },
           appState,
         ),
@@ -219,7 +234,7 @@ export const actionZoomOut = register({
       icon={ZoomOutIcon}
       title={`${t("buttons.zoomOut")} — ${getShortcutKey("CtrlOrCmd+-")}`}
       aria-label={t("buttons.zoomOut")}
-      disabled={appState.zoom.value <= MIN_ZOOM}
+      disabled={appState.zoom.value <= getMinZoomForCanvasBounds(appState)}
       onClick={() => {
         updateData(null);
       }}

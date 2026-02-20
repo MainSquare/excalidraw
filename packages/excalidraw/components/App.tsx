@@ -20,6 +20,7 @@ import {
 import {
   COLOR_PALETTE,
   CODES,
+  MIN_ZOOM,
   shouldResizeFromCenter,
   shouldMaintainAspectRatio,
   shouldRotateWithDiscreteAngle,
@@ -4198,7 +4199,7 @@ class App extends React.Component<AppProps, AppState> {
         {
           viewportX: this.state.width / 2 + this.state.offsetLeft,
           viewportY: this.state.height / 2 + this.state.offsetTop,
-          nextZoom: getNormalizedZoom(value),
+          nextZoom: this.getNormalizedZoomForCanvasBounds(value),
         },
         this.state,
       ),
@@ -4391,6 +4392,25 @@ class App extends React.Component<AppProps, AppState> {
         scrollY: clamped.scrollY,
       };
     });
+  };
+
+  private getMinZoomForCanvasBounds = (): number => {
+    if (
+      !this.state.canvasBounds ||
+      this.state.width <= 0 ||
+      this.state.height <= 0
+    ) {
+      return MIN_ZOOM;
+    }
+    return Math.min(
+      MIN_ZOOM,
+      this.state.width / this.state.canvasBounds.width,
+      this.state.height / this.state.canvasBounds.height,
+    );
+  };
+
+  private getNormalizedZoomForCanvasBounds = (zoom: number) => {
+    return getNormalizedZoom(zoom, this.getMinZoomForCanvasBounds());
   };
 
   private isPointInCanvasBounds = (point: {
@@ -5582,7 +5602,9 @@ class App extends React.Component<AppProps, AppState> {
           {
             viewportX: this.lastViewportPosition.x,
             viewportY: this.lastViewportPosition.y,
-            nextZoom: getNormalizedZoom(initialScale * event.scale),
+            nextZoom: this.getNormalizedZoomForCanvasBounds(
+              initialScale * event.scale,
+            ),
           },
           state,
         ),
@@ -6481,7 +6503,7 @@ class App extends React.Component<AppProps, AppState> {
           : distance / gesture.initialDistance;
 
       const nextZoom = scaleFactor
-        ? getNormalizedZoom(initialScale * scaleFactor)
+        ? this.getNormalizedZoomForCanvasBounds(initialScale * scaleFactor)
         : this.state.zoom.value;
 
       this.setState((state) => {
@@ -12388,7 +12410,7 @@ class App extends React.Component<AppProps, AppState> {
             {
               viewportX: this.lastViewportPosition.x,
               viewportY: this.lastViewportPosition.y,
-              nextZoom: getNormalizedZoom(newZoom),
+              nextZoom: this.getNormalizedZoomForCanvasBounds(newZoom),
             },
             state,
           ),
