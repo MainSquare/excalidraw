@@ -275,6 +275,37 @@ const _renderStaticScene = ({
     );
   }
 
+  // Gray overlay outside canvas bounds
+  if (appState.canvasBounds) {
+    const { x, y, width, height } = appState.canvasBounds;
+    const viewW = normalizedWidth / appState.zoom.value;
+    const viewH = normalizedHeight / appState.zoom.value;
+    const bx = x + appState.scrollX;
+    const by = y + appState.scrollY;
+
+    context.save();
+
+    // Even-odd fill: fills viewport area MINUS the bounds rectangle
+    context.beginPath();
+    context.rect(0, 0, viewW, viewH); // outer: whole viewport (clockwise)
+    context.rect(bx, by, width, height); // inner: bounds (clockwise = excluded by even-odd)
+    context.fillStyle =
+      appState.theme === "dark"
+        ? "rgba(0, 0, 0, 0.55)"
+        : "rgba(90, 90, 90, 0.25)";
+    context.fill("evenodd");
+
+    // Bounds border
+    context.strokeStyle =
+      appState.theme === "dark"
+        ? "rgba(255, 255, 255, 0.25)"
+        : "rgba(0, 0, 0, 0.2)";
+    context.lineWidth = 1.5 / appState.zoom.value;
+    context.strokeRect(bx, by, width, height);
+
+    context.restore();
+  }
+
   const groupsToBeAddedToFrame = new Set<string>();
 
   visibleElements.forEach((element) => {

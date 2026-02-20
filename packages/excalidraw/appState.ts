@@ -129,6 +129,7 @@ export const getDefaultAppState = (): Omit<
     activeLockedId: null,
     bindMode: "orbit",
     panningMode: "free",
+    canvasBounds: null,
   };
 };
 
@@ -256,6 +257,7 @@ const APP_STATE_STORAGE_CONF = (<
   activeLockedId: { browser: false, export: false, server: false },
   bindMode: { browser: true, export: false, server: false },
   panningMode: { browser: true, export: false, server: false },
+  canvasBounds: { browser: true, export: false, server: false },
 });
 
 const _clearAppStateForStorage = <

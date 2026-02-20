@@ -20,6 +20,7 @@ import {
 import {
   COLOR_PALETTE,
   CODES,
+  MIN_ZOOM,
   shouldResizeFromCenter,
   shouldMaintainAspectRatio,
   shouldRotateWithDiscreteAngle,
@@ -415,7 +416,7 @@ import { LaserTrails } from "../laser-trails";
 import { withBatchedUpdates, withBatchedUpdatesThrottled } from "../reactUtils";
 import { textWysiwyg } from "../wysiwyg/textWysiwyg";
 import { isOverScrollBars } from "../scene/scrollbars";
-import { restrictPanDelta } from "../scene/panning";
+import { clampScrollToBounds, restrictPanDelta } from "../scene/panning";
 
 import { isMaybeMermaidDefinition } from "../mermaid";
 
@@ -3306,6 +3307,27 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
     }
 
+    if (prevProps.canvasBounds !== this.props.canvasBounds) {
+      const newBounds = this.props.canvasBounds ?? null;
+      if (newBounds) {
+        const clamped = clampScrollToBounds(
+          this.state.scrollX,
+          this.state.scrollY,
+          this.state.zoom.value,
+          this.state.width,
+          this.state.height,
+          newBounds,
+        );
+        this.setState({
+          canvasBounds: newBounds,
+          scrollX: clamped.scrollX,
+          scrollY: clamped.scrollY,
+        });
+      } else {
+        this.setState({ canvasBounds: null });
+      }
+    }
+
     if (prevState.viewModeEnabled !== this.state.viewModeEnabled) {
       this.addEventListeners();
       this.deselectElements();
@@ -4124,12 +4146,14 @@ class App extends React.Component<AppProps, AppState> {
      */
     value: number,
   ) => {
-    this.setState({
+    this.translateCanvas({
       ...getStateForZoom(
         {
           viewportX: this.state.width / 2 + this.state.offsetLeft,
           viewportY: this.state.height / 2 + this.state.offsetTop,
-          nextZoom: getNormalizedZoom(value),
+          nextZoom: getNormalizedZoom(
+            Math.max(value, this.getMinZoomForBounds()),
+          ),
         },
         this.state,
       ),
@@ -4292,7 +4316,44 @@ class App extends React.Component<AppProps, AppState> {
   ) => {
     this.cancelInProgressAnimation?.();
     this.maybeUnfollowRemoteUser();
-    this.setState(state);
+    if (!this.state.canvasBounds) {
+      this.setState(state);
+      return;
+    }
+    const bounds = this.state.canvasBounds;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.setState as any)((prevState: Readonly<AppState>) => {
+      const rawUpdate: Partial<AppState> | null =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        typeof state === "function" ? (state as any)(prevState) : state;
+      if (rawUpdate === null || rawUpdate === undefined) {
+        return null;
+      }
+      const scrollX = rawUpdate.scrollX ?? prevState.scrollX;
+      const scrollY = rawUpdate.scrollY ?? prevState.scrollY;
+      const zoomValue = rawUpdate.zoom?.value ?? prevState.zoom.value;
+      const clamped = clampScrollToBounds(
+        scrollX,
+        scrollY,
+        zoomValue,
+        prevState.width,
+        prevState.height,
+        bounds,
+      );
+      return { ...rawUpdate, scrollX: clamped.scrollX, scrollY: clamped.scrollY };
+    });
+  };
+
+  /** Returns the minimum zoom level that keeps the viewport within canvasBounds. */
+  private getMinZoomForBounds = (): number => {
+    if (!this.state.canvasBounds) {
+      return MIN_ZOOM;
+    }
+    return Math.max(
+      MIN_ZOOM,
+      this.state.width / this.state.canvasBounds.width,
+      this.state.height / this.state.canvasBounds.height,
+    );
   };
 
   setToast = (
@@ -5449,12 +5510,17 @@ class App extends React.Component<AppProps, AppState> {
 
     const initialScale = gesture.initialScale;
     if (initialScale) {
-      this.setState((state) => ({
+      this.translateCanvas((state) => ({
         ...getStateForZoom(
           {
             viewportX: this.lastViewportPosition.x,
             viewportY: this.lastViewportPosition.y,
-            nextZoom: getNormalizedZoom(initialScale * event.scale),
+            nextZoom: getNormalizedZoom(
+              Math.max(
+                initialScale * event.scale,
+                this.getMinZoomForBounds(),
+              ),
+            ),
           },
           state,
         ),
@@ -6353,7 +6419,12 @@ class App extends React.Component<AppProps, AppState> {
           : distance / gesture.initialDistance;
 
       const nextZoom = scaleFactor
-        ? getNormalizedZoom(initialScale * scaleFactor)
+        ? getNormalizedZoom(
+            Math.max(
+              initialScale * scaleFactor,
+              this.getMinZoomForBounds(),
+            ),
+          )
         : this.state.zoom.value;
 
       this.setState((state) => {
@@ -12243,7 +12314,9 @@ class App extends React.Component<AppProps, AppState> {
             {
               viewportX: this.lastViewportPosition.x,
               viewportY: this.lastViewportPosition.y,
-              nextZoom: getNormalizedZoom(newZoom),
+              nextZoom: getNormalizedZoom(
+                Math.max(newZoom, this.getMinZoomForBounds()),
+              ),
             },
             state,
           ),
