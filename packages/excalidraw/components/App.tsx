@@ -9742,6 +9742,7 @@ class App extends React.Component<AppProps, AppState> {
               this.scene,
               snapOffset,
               event[KEYS.CTRL_OR_CMD] ? null : this.getEffectiveGridSize(),
+              this.state.canvasBounds,
             );
           }
 
