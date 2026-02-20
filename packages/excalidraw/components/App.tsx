@@ -2832,6 +2832,10 @@ class App extends React.Component<AppProps, AppState> {
       // update the state outside of initialData (e.g. when loading the app
       // with a library install link, which should auto-open the library)
       openSidebar: restoredAppState?.openSidebar || this.state.openSidebar,
+      // Prop takes priority over restored state
+      ...(this.props.canvasBounds != null
+        ? { canvasBounds: this.props.canvasBounds }
+        : {}),
       activeTool:
         activeTool.type === "image" ||
         activeTool.type === "lasso" ||
@@ -3036,6 +3040,23 @@ class App extends React.Component<AppProps, AppState> {
     if (isBrave() && !isMeasureTextSupported()) {
       this.setState({
         errorMessage: <BraveMeasureTextError />,
+      });
+    }
+
+    // Sync canvasBounds prop to state on initial mount
+    if (this.props.canvasBounds) {
+      const clamped = clampScrollToBounds(
+        this.state.scrollX,
+        this.state.scrollY,
+        this.state.zoom.value,
+        this.state.width,
+        this.state.height,
+        this.props.canvasBounds,
+      );
+      this.setState({
+        canvasBounds: this.props.canvasBounds,
+        scrollX: clamped.scrollX,
+        scrollY: clamped.scrollY,
       });
     }
   }
@@ -3307,23 +3328,35 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
     }
 
-    if (prevProps.canvasBounds !== this.props.canvasBounds) {
-      const newBounds = this.props.canvasBounds ?? null;
-      if (newBounds) {
+    {
+      const propBounds = this.props.canvasBounds ?? null;
+      const stateBounds = this.state.canvasBounds;
+      // Sync when: prop changed, or state was reset (e.g. by initialData) while prop is active
+      const boundsStateDiverged =
+        propBounds != null &&
+        (stateBounds == null ||
+          stateBounds.x !== propBounds.x ||
+          stateBounds.y !== propBounds.y ||
+          stateBounds.width !== propBounds.width ||
+          stateBounds.height !== propBounds.height);
+      const boundsPropCleared =
+        propBounds == null && stateBounds != null;
+
+      if (boundsStateDiverged) {
         const clamped = clampScrollToBounds(
           this.state.scrollX,
           this.state.scrollY,
           this.state.zoom.value,
           this.state.width,
           this.state.height,
-          newBounds,
+          propBounds!,
         );
         this.setState({
-          canvasBounds: newBounds,
+          canvasBounds: propBounds,
           scrollX: clamped.scrollX,
           scrollY: clamped.scrollY,
         });
-      } else {
+      } else if (boundsPropCleared) {
         this.setState({ canvasBounds: null });
       }
     }
