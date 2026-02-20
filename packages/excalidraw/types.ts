@@ -216,6 +216,7 @@ export type StaticCanvasAppState = Readonly<
     suggestedBinding: AppState["suggestedBinding"];
     // Cropping
     croppingElementId: AppState["croppingElementId"];
+    canvasBounds?: AppState["canvasBounds"];
   }
 >;
 
@@ -472,6 +473,13 @@ export interface AppState {
   bindMode: BindMode;
   /** canvas panning mode restriction */
   panningMode: PanningMode;
+  /** Constrains canvas scroll/zoom to this rectangle (scene coordinates). When set, areas outside render gray. */
+  canvasBounds?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null;
 }
 
 export type SearchMatch = {
@@ -648,6 +656,7 @@ export interface ExcalidrawProps {
   aiEnabled?: boolean;
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
+  canvasBounds?: AppState["canvasBounds"];
 }
 
 export type SceneData = {

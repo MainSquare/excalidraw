@@ -42,6 +42,7 @@ export const dragSelectedElements = (
     y: number;
   },
   gridSize: NullableGridSize,
+  canvasBounds?: AppState["canvasBounds"],
 ) => {
   if (
     _selectedElements.length === 1 &&
@@ -96,11 +97,17 @@ export const dragSelectedElements = (
     origElements.push(origElement);
   }
 
-  const adjustedOffset = calculateOffset(
-    getCommonBounds(origElements),
+  const commonBounds = getCommonBounds(origElements);
+  let adjustedOffset = calculateOffset(
+    commonBounds,
     offset,
     snapOffset,
     gridSize,
+  );
+  adjustedOffset = clampDragOffsetToBounds(
+    commonBounds,
+    adjustedOffset,
+    canvasBounds,
   );
 
   const elementsToUpdateIds = new Set(
@@ -198,6 +205,34 @@ const calculateOffset = (
   return {
     x: nextX - x,
     y: nextY - y,
+  };
+};
+
+const clampDragOffsetToBounds = (
+  commonBounds: Bounds,
+  offset: { x: number; y: number },
+  canvasBounds?: AppState["canvasBounds"],
+): { x: number; y: number } => {
+  if (!canvasBounds) {
+    return offset;
+  }
+
+  const [x1, y1, x2, y2] = commonBounds;
+  const minDx = canvasBounds.x - x1;
+  const maxDx = canvasBounds.x + canvasBounds.width - x2;
+  const minDy = canvasBounds.y - y1;
+  const maxDy = canvasBounds.y + canvasBounds.height - y2;
+
+  const clampToRange = (value: number, min: number, max: number) => {
+    if (min > max) {
+      return (min + max) / 2;
+    }
+    return Math.max(min, Math.min(max, value));
+  };
+
+  return {
+    x: clampToRange(offset.x, minDx, maxDx),
+    y: clampToRange(offset.y, minDy, maxDy),
   };
 };
 

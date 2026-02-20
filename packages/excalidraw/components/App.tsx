@@ -20,6 +20,7 @@ import {
 import {
   COLOR_PALETTE,
   CODES,
+  MIN_ZOOM,
   shouldResizeFromCenter,
   shouldMaintainAspectRatio,
   shouldRotateWithDiscreteAngle,
@@ -415,7 +416,7 @@ import { LaserTrails } from "../laser-trails";
 import { withBatchedUpdates, withBatchedUpdatesThrottled } from "../reactUtils";
 import { textWysiwyg } from "../wysiwyg/textWysiwyg";
 import { isOverScrollBars } from "../scene/scrollbars";
-import { restrictPanDelta } from "../scene/panning";
+import { clampScrollToBounds, restrictPanDelta } from "../scene/panning";
 
 import { isMaybeMermaidDefinition } from "../mermaid";
 
@@ -2671,6 +2672,12 @@ class App extends React.Component<AppProps, AppState> {
         zenModeEnabled = this.props.zenModeEnabled;
       }
 
+      // Prop takes priority over action result for canvasBounds
+      const canvasBounds =
+        this.props.canvasBounds != null
+          ? this.props.canvasBounds
+          : actionResult.appState?.canvasBounds ?? null;
+
       editingTextElement = actionResult.appState?.editingTextElement || null;
 
       // make sure editingTextElement points to latest element reference
@@ -2707,6 +2714,7 @@ class App extends React.Component<AppProps, AppState> {
           theme,
           name,
           errorMessage,
+          canvasBounds,
         };
       });
 
@@ -2831,6 +2839,17 @@ class App extends React.Component<AppProps, AppState> {
       // update the state outside of initialData (e.g. when loading the app
       // with a library install link, which should auto-open the library)
       openSidebar: restoredAppState?.openSidebar || this.state.openSidebar,
+      // Prop takes priority over restored state
+      ...(this.props.canvasBounds != null
+        ? {
+            canvasBounds: this.props.canvasBounds,
+            zoom: {
+              value: this.getInitialZoomForCanvasBounds(
+                this.props.canvasBounds,
+              ),
+            },
+          }
+        : {}),
       activeTool:
         activeTool.type === "image" ||
         activeTool.type === "lasso" ||
@@ -3035,6 +3054,26 @@ class App extends React.Component<AppProps, AppState> {
     if (isBrave() && !isMeasureTextSupported()) {
       this.setState({
         errorMessage: <BraveMeasureTextError />,
+      });
+    }
+
+    // Sync canvasBounds prop to state on initial mount
+    if (this.props.canvasBounds) {
+      const bounds = this.props.canvasBounds;
+      const initialZoom = this.getInitialZoomForCanvasBounds(bounds);
+      const clamped = clampScrollToBounds(
+        this.state.scrollX,
+        this.state.scrollY,
+        initialZoom,
+        this.state.width,
+        this.state.height,
+        bounds,
+      );
+      this.setState({
+        canvasBounds: bounds,
+        zoom: { value: initialZoom },
+        scrollX: clamped.scrollX,
+        scrollY: clamped.scrollY,
       });
     }
   }
@@ -3304,6 +3343,51 @@ class App extends React.Component<AppProps, AppState> {
 
     if (prevProps.viewModeEnabled !== this.props.viewModeEnabled) {
       this.setState({ viewModeEnabled: !!this.props.viewModeEnabled });
+    }
+
+    {
+      const propBounds = this.props.canvasBounds ?? null;
+      const stateBounds = this.state.canvasBounds;
+      // Sync when: prop changed, or state was reset (e.g. by initialData) while prop is active
+      const boundsStateDiverged =
+        propBounds != null &&
+        (stateBounds == null ||
+          stateBounds.x !== propBounds.x ||
+          stateBounds.y !== propBounds.y ||
+          stateBounds.width !== propBounds.width ||
+          stateBounds.height !== propBounds.height);
+      const boundsPropCleared = propBounds == null && stateBounds != null;
+
+      if (boundsStateDiverged) {
+        const nextZoom =
+          stateBounds == null
+            ? this.getInitialZoomForCanvasBounds(propBounds!)
+            : this.state.zoom.value;
+        const clamped = clampScrollToBounds(
+          this.state.scrollX,
+          this.state.scrollY,
+          nextZoom,
+          this.state.width,
+          this.state.height,
+          propBounds!,
+        );
+        if (nextZoom !== this.state.zoom.value) {
+          this.setState({
+            canvasBounds: propBounds,
+            zoom: { value: nextZoom },
+            scrollX: clamped.scrollX,
+            scrollY: clamped.scrollY,
+          });
+        } else {
+          this.setState({
+            canvasBounds: propBounds,
+            scrollX: clamped.scrollX,
+            scrollY: clamped.scrollY,
+          });
+        }
+      } else if (boundsPropCleared) {
+        this.setState({ canvasBounds: null });
+      }
     }
 
     if (prevState.viewModeEnabled !== this.state.viewModeEnabled) {
@@ -4124,12 +4208,12 @@ class App extends React.Component<AppProps, AppState> {
      */
     value: number,
   ) => {
-    this.setState({
+    this.translateCanvas({
       ...getStateForZoom(
         {
           viewportX: this.state.width / 2 + this.state.offsetLeft,
           viewportY: this.state.height / 2 + this.state.offsetTop,
-          nextZoom: getNormalizedZoom(value),
+          nextZoom: this.getNormalizedZoomForCanvasBounds(value),
         },
         this.state,
       ),
@@ -4292,7 +4376,104 @@ class App extends React.Component<AppProps, AppState> {
   ) => {
     this.cancelInProgressAnimation?.();
     this.maybeUnfollowRemoteUser();
-    this.setState(state);
+    if (!this.state.canvasBounds) {
+      this.setState(state);
+      return;
+    }
+    const bounds = this.state.canvasBounds;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.setState as any)((prevState: Readonly<AppState>) => {
+      const rawUpdate: Partial<AppState> | null =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        typeof state === "function" ? (state as any)(prevState) : state;
+      if (rawUpdate === null || rawUpdate === undefined) {
+        return null;
+      }
+      const scrollX = rawUpdate.scrollX ?? prevState.scrollX;
+      const scrollY = rawUpdate.scrollY ?? prevState.scrollY;
+      const zoomValue = rawUpdate.zoom?.value ?? prevState.zoom.value;
+      const clamped = clampScrollToBounds(
+        scrollX,
+        scrollY,
+        zoomValue,
+        prevState.width,
+        prevState.height,
+        bounds,
+      );
+      return {
+        ...rawUpdate,
+        scrollX: clamped.scrollX,
+        scrollY: clamped.scrollY,
+      };
+    });
+  };
+
+  private getInitialZoomForCanvasBounds = (
+    bounds: NonNullable<AppState["canvasBounds"]>,
+  ) => {
+    if (
+      this.state.width <= 0 ||
+      this.state.height <= 0 ||
+      bounds.width <= 0 ||
+      bounds.height <= 0
+    ) {
+      return getNormalizedZoom(1);
+    }
+    const fitZoom = Math.min(
+      1,
+      this.state.width / bounds.width,
+      this.state.height / bounds.height,
+    );
+    return getNormalizedZoom(fitZoom, Math.min(MIN_ZOOM, fitZoom));
+  };
+
+  private getMinZoomForCanvasBounds = (): number => {
+    if (
+      !this.state.canvasBounds ||
+      this.state.width <= 0 ||
+      this.state.height <= 0
+    ) {
+      return MIN_ZOOM;
+    }
+    return Math.min(
+      MIN_ZOOM,
+      this.state.width / this.state.canvasBounds.width,
+      this.state.height / this.state.canvasBounds.height,
+    );
+  };
+
+  private getNormalizedZoomForCanvasBounds = (zoom: number) => {
+    return getNormalizedZoom(zoom, this.getMinZoomForCanvasBounds());
+  };
+
+  private isPointInCanvasBounds = (point: {
+    x: number;
+    y: number;
+  }): boolean => {
+    if (!this.state.canvasBounds) {
+      return true;
+    }
+    const bounds = this.state.canvasBounds;
+    return (
+      point.x >= bounds.x &&
+      point.x <= bounds.x + bounds.width &&
+      point.y >= bounds.y &&
+      point.y <= bounds.y + bounds.height
+    );
+  };
+
+  private clampPointToCanvasBounds = <T extends { x: number; y: number }>(
+    point: T,
+  ): T => {
+    if (!this.state.canvasBounds) {
+      return point;
+    }
+    const bounds = this.state.canvasBounds;
+    return {
+      ...point,
+      x: clamp(point.x, bounds.x, bounds.x + bounds.width),
+      y: clamp(point.y, bounds.y, bounds.y + bounds.height),
+    };
   };
 
   setToast = (
@@ -5449,12 +5630,14 @@ class App extends React.Component<AppProps, AppState> {
 
     const initialScale = gesture.initialScale;
     if (initialScale) {
-      this.setState((state) => ({
+      this.translateCanvas((state) => ({
         ...getStateForZoom(
           {
             viewportX: this.lastViewportPosition.x,
             viewportY: this.lastViewportPosition.y,
-            nextZoom: getNormalizedZoom(initialScale * event.scale),
+            nextZoom: this.getNormalizedZoomForCanvasBounds(
+              initialScale * event.scale,
+            ),
           },
           state,
         ),
@@ -6353,7 +6536,7 @@ class App extends React.Component<AppProps, AppState> {
           : distance / gesture.initialDistance;
 
       const nextZoom = scaleFactor
-        ? getNormalizedZoom(initialScale * scaleFactor)
+        ? this.getNormalizedZoomForCanvasBounds(initialScale * scaleFactor)
         : this.state.zoom.value;
 
       this.setState((state) => {
@@ -7152,7 +7335,10 @@ class App extends React.Component<AppProps, AppState> {
   private handleCanvasPointerDown = (
     event: React.PointerEvent<HTMLElement>,
   ) => {
-    const scenePointer = viewportCoordsToSceneCoords(event, this.state);
+    const scenePointerRaw = viewportCoordsToSceneCoords(event, this.state);
+    const isPointerOutsideCanvasBounds =
+      !this.isPointInCanvasBounds(scenePointerRaw);
+    const scenePointer = this.clampPointToCanvasBounds(scenePointerRaw);
     const { x: scenePointerX, y: scenePointerY } = scenePointer;
     this.lastPointerMoveCoords = {
       x: scenePointerX,
@@ -7287,6 +7473,15 @@ class App extends React.Component<AppProps, AppState> {
     // else it will send pointer state & laser pointer events in collab when
     // panning
     if (this.handleCanvasPanUsingWheelOrSpaceDrag(event)) {
+      return;
+    }
+
+    if (
+      isPointerOutsideCanvasBounds &&
+      (event.button === POINTER_BUTTON.MAIN ||
+        event.button === POINTER_BUTTON.TOUCH ||
+        event.button === POINTER_BUTTON.ERASER)
+    ) {
       return;
     }
 
@@ -7600,7 +7795,8 @@ class App extends React.Component<AppProps, AppState> {
       { clientX: event.clientX, clientY: event.clientY },
       this.state,
     );
-    const { x: scenePointerX, y: scenePointerY } = scenePointer;
+    const boundedScenePointer = this.clampPointToCanvasBounds(scenePointer);
+    const { x: scenePointerX, y: scenePointerY } = boundedScenePointer;
     this.lastPointerMoveCoords = {
       x: scenePointerX,
       y: scenePointerY,
@@ -7813,7 +8009,9 @@ class App extends React.Component<AppProps, AppState> {
   private initialPointerDownState(
     event: React.PointerEvent<HTMLElement>,
   ): PointerDownState {
-    const origin = viewportCoordsToSceneCoords(event, this.state);
+    const origin = this.clampPointToCanvasBounds(
+      viewportCoordsToSceneCoords(event, this.state),
+    );
     const selectedElements = this.scene.getSelectedElements(this.state);
     const [minX, minY, maxX, maxY] = getCommonBounds(selectedElements);
     const isElbowArrowOnly = selectedElements.findIndex(isElbowArrow) === 0;
@@ -9113,7 +9311,9 @@ class App extends React.Component<AppProps, AppState> {
       if (this.state.openDialog?.name === "elementLinkSelector") {
         return;
       }
-      const pointerCoords = viewportCoordsToSceneCoords(event, this.state);
+      const pointerCoords = this.clampPointToCanvasBounds(
+        viewportCoordsToSceneCoords(event, this.state),
+      );
 
       if (this.state.activeLockedId) {
         this.setState({
@@ -9597,6 +9797,7 @@ class App extends React.Component<AppProps, AppState> {
               this.scene,
               snapOffset,
               event[KEYS.CTRL_OR_CMD] ? null : this.getEffectiveGridSize(),
+              this.state.canvasBounds,
             );
           }
 
@@ -9725,10 +9926,7 @@ class App extends React.Component<AppProps, AppState> {
 
               // update drag origin to the position at which we started
               // the duplication so that the drag offset is correct
-              pointerDownState.drag.origin = viewportCoordsToSceneCoords(
-                event,
-                this.state,
-              );
+              pointerDownState.drag.origin = { ...pointerCoords };
 
               // switch selected elements to the duplicated ones
               this.setState((prevState) => ({
@@ -10073,9 +10271,11 @@ class App extends React.Component<AppProps, AppState> {
 
       const hitElements = pointerDownState.hit.allHitElements;
 
-      const sceneCoords = viewportCoordsToSceneCoords(
-        { clientX: childEvent.clientX, clientY: childEvent.clientY },
-        this.state,
+      const sceneCoords = this.clampPointToCanvasBounds(
+        viewportCoordsToSceneCoords(
+          { clientX: childEvent.clientX, clientY: childEvent.clientY },
+          this.state,
+        ),
       );
 
       if (
@@ -10263,9 +10463,8 @@ class App extends React.Component<AppProps, AppState> {
       );
 
       if (newElement?.type === "freedraw") {
-        const pointerCoords = viewportCoordsToSceneCoords(
-          childEvent,
-          this.state,
+        const pointerCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
         );
 
         const points = newElement.points;
@@ -10300,9 +10499,8 @@ class App extends React.Component<AppProps, AppState> {
         ) {
           this.store.scheduleCapture();
         }
-        const pointerCoords = viewportCoordsToSceneCoords(
-          childEvent,
-          this.state,
+        const pointerCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
         );
 
         const dragDistance =
@@ -10464,7 +10662,9 @@ class App extends React.Component<AppProps, AppState> {
       }
 
       if (pointerDownState.drag.hasOccurred) {
-        const sceneCoords = viewportCoordsToSceneCoords(childEvent, this.state);
+        const sceneCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
+        );
 
         // when editing the points of a linear element, we check if the
         // linear element still is in the frame afterwards
@@ -12243,7 +12443,7 @@ class App extends React.Component<AppProps, AppState> {
             {
               viewportX: this.lastViewportPosition.x,
               viewportY: this.lastViewportPosition.y,
-              nextZoom: getNormalizedZoom(newZoom),
+              nextZoom: this.getNormalizedZoomForCanvasBounds(newZoom),
             },
             state,
           ),
