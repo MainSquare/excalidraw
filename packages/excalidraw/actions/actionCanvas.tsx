@@ -43,6 +43,7 @@ import { setCursor } from "../cursor";
 
 import { t } from "../i18n";
 import { getNormalizedZoom } from "../scene";
+import { clampScrollToBounds } from "../scene/panning";
 import { centerScrollOn } from "../scene/scroll";
 import { getStateForZoom } from "../scene/zoom";
 import { getShortcutKey } from "../shortcut";
@@ -102,31 +103,46 @@ export const actionClearCanvas = register({
   },
   perform: (elements, appState, _, app) => {
     app.imageCache.clear();
+    const nextAppState = {
+      ...getDefaultAppState(),
+      files: {},
+      theme: appState.theme,
+      penMode: appState.penMode,
+      penDetected: appState.penDetected,
+      exportBackground: appState.exportBackground,
+      exportEmbedScene: appState.exportEmbedScene,
+      gridSize: appState.gridSize,
+      gridStep: appState.gridStep,
+      gridModeEnabled: appState.gridModeEnabled,
+      stats: appState.stats,
+      pasteDialog: appState.pasteDialog,
+      activeTool:
+        appState.activeTool.type === "image"
+          ? {
+              ...appState.activeTool,
+              type: app.state.preferredSelectionTool.type,
+            }
+          : appState.activeTool,
+    };
+
+    if (app.props.canvasBounds) {
+      const clamped = clampScrollToBounds(
+        nextAppState.scrollX,
+        nextAppState.scrollY,
+        nextAppState.zoom.value,
+        appState.width,
+        appState.height,
+        app.props.canvasBounds,
+      );
+      nextAppState.scrollX = clamped.scrollX;
+      nextAppState.scrollY = clamped.scrollY;
+    }
+
     return {
       elements: elements.map((element) =>
         newElementWith(element, { isDeleted: true }),
       ),
-      appState: {
-        ...getDefaultAppState(),
-        files: {},
-        theme: appState.theme,
-        penMode: appState.penMode,
-        penDetected: appState.penDetected,
-        exportBackground: appState.exportBackground,
-        exportEmbedScene: appState.exportEmbedScene,
-        gridSize: appState.gridSize,
-        gridStep: appState.gridStep,
-        gridModeEnabled: appState.gridModeEnabled,
-        stats: appState.stats,
-        pasteDialog: appState.pasteDialog,
-        activeTool:
-          appState.activeTool.type === "image"
-            ? {
-                ...appState.activeTool,
-                type: app.state.preferredSelectionTool.type,
-              }
-            : appState.activeTool,
-      },
+      appState: nextAppState,
       captureUpdate: CaptureUpdateAction.IMMEDIATELY,
     };
   },
