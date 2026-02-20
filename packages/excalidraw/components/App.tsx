@@ -2672,6 +2672,12 @@ class App extends React.Component<AppProps, AppState> {
         zenModeEnabled = this.props.zenModeEnabled;
       }
 
+      // Prop takes priority over action result for canvasBounds
+      const canvasBounds =
+        this.props.canvasBounds != null
+          ? this.props.canvasBounds
+          : (actionResult.appState?.canvasBounds ?? null);
+
       editingTextElement = actionResult.appState?.editingTextElement || null;
 
       // make sure editingTextElement points to latest element reference
@@ -2708,6 +2714,7 @@ class App extends React.Component<AppProps, AppState> {
           theme,
           name,
           errorMessage,
+          canvasBounds,
         };
       });
 
@@ -2834,7 +2841,18 @@ class App extends React.Component<AppProps, AppState> {
       openSidebar: restoredAppState?.openSidebar || this.state.openSidebar,
       // Prop takes priority over restored state
       ...(this.props.canvasBounds != null
-        ? { canvasBounds: this.props.canvasBounds }
+        ? {
+            canvasBounds: this.props.canvasBounds,
+            zoom: {
+              value: getNormalizedZoom(
+                Math.max(
+                  restoredAppState.zoom.value,
+                  this.state.width / this.props.canvasBounds.width,
+                  this.state.height / this.props.canvasBounds.height,
+                ),
+              ),
+            },
+          }
         : {}),
       activeTool:
         activeTool.type === "image" ||
@@ -3045,16 +3063,24 @@ class App extends React.Component<AppProps, AppState> {
 
     // Sync canvasBounds prop to state on initial mount
     if (this.props.canvasBounds) {
+      const bounds = this.props.canvasBounds;
+      const minZoom = Math.max(
+        MIN_ZOOM,
+        this.state.width / bounds.width,
+        this.state.height / bounds.height,
+      );
+      const clampedZoom = Math.max(this.state.zoom.value, minZoom);
       const clamped = clampScrollToBounds(
         this.state.scrollX,
         this.state.scrollY,
-        this.state.zoom.value,
+        clampedZoom,
         this.state.width,
         this.state.height,
-        this.props.canvasBounds,
+        bounds,
       );
       this.setState({
-        canvasBounds: this.props.canvasBounds,
+        canvasBounds: bounds,
+        zoom: { value: getNormalizedZoom(clampedZoom) },
         scrollX: clamped.scrollX,
         scrollY: clamped.scrollY,
       });
@@ -3343,16 +3369,23 @@ class App extends React.Component<AppProps, AppState> {
         propBounds == null && stateBounds != null;
 
       if (boundsStateDiverged) {
+        const minZoom = Math.max(
+          MIN_ZOOM,
+          this.state.width / propBounds!.width,
+          this.state.height / propBounds!.height,
+        );
+        const clampedZoom = Math.max(this.state.zoom.value, minZoom);
         const clamped = clampScrollToBounds(
           this.state.scrollX,
           this.state.scrollY,
-          this.state.zoom.value,
+          clampedZoom,
           this.state.width,
           this.state.height,
           propBounds!,
         );
         this.setState({
           canvasBounds: propBounds,
+          zoom: { value: getNormalizedZoom(clampedZoom) },
           scrollX: clamped.scrollX,
           scrollY: clamped.scrollY,
         });
@@ -4185,7 +4218,7 @@ class App extends React.Component<AppProps, AppState> {
           viewportX: this.state.width / 2 + this.state.offsetLeft,
           viewportY: this.state.height / 2 + this.state.offsetTop,
           nextZoom: getNormalizedZoom(
-            Math.max(value, this.getMinZoomForBounds()),
+            this.clampZoomToBounds(value, this.state.zoom.value),
           ),
         },
         this.state,
@@ -4364,7 +4397,20 @@ class App extends React.Component<AppProps, AppState> {
       }
       const scrollX = rawUpdate.scrollX ?? prevState.scrollX;
       const scrollY = rawUpdate.scrollY ?? prevState.scrollY;
-      const zoomValue = rawUpdate.zoom?.value ?? prevState.zoom.value;
+      const currentZoom = rawUpdate.zoom?.value ?? prevState.zoom.value;
+      // Only clamp zoom when the update actually changes zoom, not during pan
+      let zoomValue = currentZoom;
+      if (rawUpdate.zoom !== undefined) {
+        const minZoom = Math.max(
+          MIN_ZOOM,
+          prevState.width / bounds.width,
+          prevState.height / bounds.height,
+        );
+        zoomValue =
+          prevState.zoom.value < minZoom
+            ? currentZoom
+            : Math.max(currentZoom, minZoom);
+      }
       const clamped = clampScrollToBounds(
         scrollX,
         scrollY,
@@ -4373,7 +4419,14 @@ class App extends React.Component<AppProps, AppState> {
         prevState.height,
         bounds,
       );
-      return { ...rawUpdate, scrollX: clamped.scrollX, scrollY: clamped.scrollY };
+      return {
+        ...rawUpdate,
+        scrollX: clamped.scrollX,
+        scrollY: clamped.scrollY,
+        ...(zoomValue !== currentZoom
+          ? { zoom: { value: getNormalizedZoom(zoomValue) } }
+          : {}),
+      };
     });
   };
 
@@ -4387,6 +4440,21 @@ class App extends React.Component<AppProps, AppState> {
       this.state.width / this.state.canvasBounds.width,
       this.state.height / this.state.canvasBounds.height,
     );
+  };
+
+  /**
+   * Keep wheel/pinch zoom incremental when we're already below bounds minimum.
+   * Once zoom reaches the minimum, prevent zooming out below it.
+   */
+  private clampZoomToBounds = (
+    nextZoom: number,
+    currentZoom: number,
+  ): number => {
+    const minZoom = this.getMinZoomForBounds();
+    if (currentZoom < minZoom) {
+      return nextZoom;
+    }
+    return Math.max(nextZoom, minZoom);
   };
 
   setToast = (
@@ -5549,9 +5617,9 @@ class App extends React.Component<AppProps, AppState> {
             viewportX: this.lastViewportPosition.x,
             viewportY: this.lastViewportPosition.y,
             nextZoom: getNormalizedZoom(
-              Math.max(
+              this.clampZoomToBounds(
                 initialScale * event.scale,
-                this.getMinZoomForBounds(),
+                this.state.zoom.value,
               ),
             ),
           },
@@ -6453,9 +6521,9 @@ class App extends React.Component<AppProps, AppState> {
 
       const nextZoom = scaleFactor
         ? getNormalizedZoom(
-            Math.max(
+            this.clampZoomToBounds(
               initialScale * scaleFactor,
-              this.getMinZoomForBounds(),
+              this.state.zoom.value,
             ),
           )
         : this.state.zoom.value;
@@ -12348,7 +12416,7 @@ class App extends React.Component<AppProps, AppState> {
               viewportX: this.lastViewportPosition.x,
               viewportY: this.lastViewportPosition.y,
               nextZoom: getNormalizedZoom(
-                Math.max(newZoom, this.getMinZoomForBounds()),
+                this.clampZoomToBounds(newZoom, this.state.zoom.value),
               ),
             },
             state,
