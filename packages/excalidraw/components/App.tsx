@@ -2676,7 +2676,7 @@ class App extends React.Component<AppProps, AppState> {
       const canvasBounds =
         this.props.canvasBounds != null
           ? this.props.canvasBounds
-          : (actionResult.appState?.canvasBounds ?? null);
+          : actionResult.appState?.canvasBounds ?? null;
 
       editingTextElement = actionResult.appState?.editingTextElement || null;
 
@@ -3356,8 +3356,7 @@ class App extends React.Component<AppProps, AppState> {
           stateBounds.y !== propBounds.y ||
           stateBounds.width !== propBounds.width ||
           stateBounds.height !== propBounds.height);
-      const boundsPropCleared =
-        propBounds == null && stateBounds != null;
+      const boundsPropCleared = propBounds == null && stateBounds != null;
 
       if (boundsStateDiverged) {
         const nextZoom =
