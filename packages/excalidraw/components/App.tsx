@@ -4393,6 +4393,36 @@ class App extends React.Component<AppProps, AppState> {
     });
   };
 
+  private isPointInCanvasBounds = (point: {
+    x: number;
+    y: number;
+  }): boolean => {
+    if (!this.state.canvasBounds) {
+      return true;
+    }
+    const bounds = this.state.canvasBounds;
+    return (
+      point.x >= bounds.x &&
+      point.x <= bounds.x + bounds.width &&
+      point.y >= bounds.y &&
+      point.y <= bounds.y + bounds.height
+    );
+  };
+
+  private clampPointToCanvasBounds = <T extends { x: number; y: number }>(
+    point: T,
+  ): T => {
+    if (!this.state.canvasBounds) {
+      return point;
+    }
+    const bounds = this.state.canvasBounds;
+    return {
+      ...point,
+      x: clamp(point.x, bounds.x, bounds.x + bounds.width),
+      y: clamp(point.y, bounds.y, bounds.y + bounds.height),
+    };
+  };
+
   setToast = (
     toast: {
       message: string;
@@ -7250,7 +7280,10 @@ class App extends React.Component<AppProps, AppState> {
   private handleCanvasPointerDown = (
     event: React.PointerEvent<HTMLElement>,
   ) => {
-    const scenePointer = viewportCoordsToSceneCoords(event, this.state);
+    const scenePointerRaw = viewportCoordsToSceneCoords(event, this.state);
+    const isPointerOutsideCanvasBounds =
+      !this.isPointInCanvasBounds(scenePointerRaw);
+    const scenePointer = this.clampPointToCanvasBounds(scenePointerRaw);
     const { x: scenePointerX, y: scenePointerY } = scenePointer;
     this.lastPointerMoveCoords = {
       x: scenePointerX,
@@ -7385,6 +7418,15 @@ class App extends React.Component<AppProps, AppState> {
     // else it will send pointer state & laser pointer events in collab when
     // panning
     if (this.handleCanvasPanUsingWheelOrSpaceDrag(event)) {
+      return;
+    }
+
+    if (
+      isPointerOutsideCanvasBounds &&
+      (event.button === POINTER_BUTTON.MAIN ||
+        event.button === POINTER_BUTTON.TOUCH ||
+        event.button === POINTER_BUTTON.ERASER)
+    ) {
       return;
     }
 
@@ -7698,7 +7740,8 @@ class App extends React.Component<AppProps, AppState> {
       { clientX: event.clientX, clientY: event.clientY },
       this.state,
     );
-    const { x: scenePointerX, y: scenePointerY } = scenePointer;
+    const boundedScenePointer = this.clampPointToCanvasBounds(scenePointer);
+    const { x: scenePointerX, y: scenePointerY } = boundedScenePointer;
     this.lastPointerMoveCoords = {
       x: scenePointerX,
       y: scenePointerY,
@@ -7911,7 +7954,9 @@ class App extends React.Component<AppProps, AppState> {
   private initialPointerDownState(
     event: React.PointerEvent<HTMLElement>,
   ): PointerDownState {
-    const origin = viewportCoordsToSceneCoords(event, this.state);
+    const origin = this.clampPointToCanvasBounds(
+      viewportCoordsToSceneCoords(event, this.state),
+    );
     const selectedElements = this.scene.getSelectedElements(this.state);
     const [minX, minY, maxX, maxY] = getCommonBounds(selectedElements);
     const isElbowArrowOnly = selectedElements.findIndex(isElbowArrow) === 0;
@@ -9211,7 +9256,9 @@ class App extends React.Component<AppProps, AppState> {
       if (this.state.openDialog?.name === "elementLinkSelector") {
         return;
       }
-      const pointerCoords = viewportCoordsToSceneCoords(event, this.state);
+      const pointerCoords = this.clampPointToCanvasBounds(
+        viewportCoordsToSceneCoords(event, this.state),
+      );
 
       if (this.state.activeLockedId) {
         this.setState({
@@ -9823,10 +9870,7 @@ class App extends React.Component<AppProps, AppState> {
 
               // update drag origin to the position at which we started
               // the duplication so that the drag offset is correct
-              pointerDownState.drag.origin = viewportCoordsToSceneCoords(
-                event,
-                this.state,
-              );
+              pointerDownState.drag.origin = { ...pointerCoords };
 
               // switch selected elements to the duplicated ones
               this.setState((prevState) => ({
@@ -10171,9 +10215,11 @@ class App extends React.Component<AppProps, AppState> {
 
       const hitElements = pointerDownState.hit.allHitElements;
 
-      const sceneCoords = viewportCoordsToSceneCoords(
-        { clientX: childEvent.clientX, clientY: childEvent.clientY },
-        this.state,
+      const sceneCoords = this.clampPointToCanvasBounds(
+        viewportCoordsToSceneCoords(
+          { clientX: childEvent.clientX, clientY: childEvent.clientY },
+          this.state,
+        ),
       );
 
       if (
@@ -10361,9 +10407,8 @@ class App extends React.Component<AppProps, AppState> {
       );
 
       if (newElement?.type === "freedraw") {
-        const pointerCoords = viewportCoordsToSceneCoords(
-          childEvent,
-          this.state,
+        const pointerCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
         );
 
         const points = newElement.points;
@@ -10398,9 +10443,8 @@ class App extends React.Component<AppProps, AppState> {
         ) {
           this.store.scheduleCapture();
         }
-        const pointerCoords = viewportCoordsToSceneCoords(
-          childEvent,
-          this.state,
+        const pointerCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
         );
 
         const dragDistance =
@@ -10562,7 +10606,9 @@ class App extends React.Component<AppProps, AppState> {
       }
 
       if (pointerDownState.drag.hasOccurred) {
-        const sceneCoords = viewportCoordsToSceneCoords(childEvent, this.state);
+        const sceneCoords = this.clampPointToCanvasBounds(
+          viewportCoordsToSceneCoords(childEvent, this.state),
+        );
 
         // when editing the points of a linear element, we check if the
         // linear element still is in the frame afterwards
