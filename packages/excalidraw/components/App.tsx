@@ -3371,14 +3371,20 @@ class App extends React.Component<AppProps, AppState> {
           this.state.height,
           propBounds!,
         );
-        this.setState({
-          canvasBounds: propBounds,
-          ...(nextZoom !== this.state.zoom.value
-            ? { zoom: { value: nextZoom } }
-            : {}),
-          scrollX: clamped.scrollX,
-          scrollY: clamped.scrollY,
-        });
+        if (nextZoom !== this.state.zoom.value) {
+          this.setState({
+            canvasBounds: propBounds,
+            zoom: { value: nextZoom },
+            scrollX: clamped.scrollX,
+            scrollY: clamped.scrollY,
+          });
+        } else {
+          this.setState({
+            canvasBounds: propBounds,
+            scrollX: clamped.scrollX,
+            scrollY: clamped.scrollY,
+          });
+        }
       } else if (boundsPropCleared) {
         this.setState({ canvasBounds: null });
       }
