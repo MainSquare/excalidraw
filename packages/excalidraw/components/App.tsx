@@ -2844,7 +2844,9 @@ class App extends React.Component<AppProps, AppState> {
         ? {
             canvasBounds: this.props.canvasBounds,
             zoom: {
-              value: getNormalizedZoom(1),
+              value: this.getInitialZoomForCanvasBounds(
+                this.props.canvasBounds,
+              ),
             },
           }
         : {}),
@@ -3058,7 +3060,7 @@ class App extends React.Component<AppProps, AppState> {
     // Sync canvasBounds prop to state on initial mount
     if (this.props.canvasBounds) {
       const bounds = this.props.canvasBounds;
-      const initialZoom = getNormalizedZoom(1);
+      const initialZoom = this.getInitialZoomForCanvasBounds(bounds);
       const clamped = clampScrollToBounds(
         this.state.scrollX,
         this.state.scrollY,
@@ -3358,16 +3360,23 @@ class App extends React.Component<AppProps, AppState> {
         propBounds == null && stateBounds != null;
 
       if (boundsStateDiverged) {
+        const nextZoom =
+          stateBounds == null
+            ? this.getInitialZoomForCanvasBounds(propBounds!)
+            : this.state.zoom.value;
         const clamped = clampScrollToBounds(
           this.state.scrollX,
           this.state.scrollY,
-          this.state.zoom.value,
+          nextZoom,
           this.state.width,
           this.state.height,
           propBounds!,
         );
         this.setState({
           canvasBounds: propBounds,
+          ...(nextZoom !== this.state.zoom.value
+            ? { zoom: { value: nextZoom } }
+            : {}),
           scrollX: clamped.scrollX,
           scrollY: clamped.scrollY,
         });
@@ -4392,6 +4401,25 @@ class App extends React.Component<AppProps, AppState> {
         scrollY: clamped.scrollY,
       };
     });
+  };
+
+  private getInitialZoomForCanvasBounds = (
+    bounds: NonNullable<AppState["canvasBounds"]>,
+  ) => {
+    if (
+      this.state.width <= 0 ||
+      this.state.height <= 0 ||
+      bounds.width <= 0 ||
+      bounds.height <= 0
+    ) {
+      return getNormalizedZoom(1);
+    }
+    const fitZoom = Math.min(
+      1,
+      this.state.width / bounds.width,
+      this.state.height / bounds.height,
+    );
+    return getNormalizedZoom(fitZoom, Math.min(MIN_ZOOM, fitZoom));
   };
 
   private getMinZoomForCanvasBounds = (): number => {
