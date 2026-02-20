@@ -20,7 +20,6 @@ import {
 import {
   COLOR_PALETTE,
   CODES,
-  MIN_ZOOM,
   shouldResizeFromCenter,
   shouldMaintainAspectRatio,
   shouldRotateWithDiscreteAngle,
@@ -2844,13 +2843,7 @@ class App extends React.Component<AppProps, AppState> {
         ? {
             canvasBounds: this.props.canvasBounds,
             zoom: {
-              value: getNormalizedZoom(
-                Math.max(
-                  restoredAppState.zoom.value,
-                  this.state.width / this.props.canvasBounds.width,
-                  this.state.height / this.props.canvasBounds.height,
-                ),
-              ),
+              value: getNormalizedZoom(1),
             },
           }
         : {}),
@@ -3064,23 +3057,18 @@ class App extends React.Component<AppProps, AppState> {
     // Sync canvasBounds prop to state on initial mount
     if (this.props.canvasBounds) {
       const bounds = this.props.canvasBounds;
-      const minZoom = Math.max(
-        MIN_ZOOM,
-        this.state.width / bounds.width,
-        this.state.height / bounds.height,
-      );
-      const clampedZoom = Math.max(this.state.zoom.value, minZoom);
+      const initialZoom = getNormalizedZoom(1);
       const clamped = clampScrollToBounds(
         this.state.scrollX,
         this.state.scrollY,
-        clampedZoom,
+        initialZoom,
         this.state.width,
         this.state.height,
         bounds,
       );
       this.setState({
         canvasBounds: bounds,
-        zoom: { value: getNormalizedZoom(clampedZoom) },
+        zoom: { value: initialZoom },
         scrollX: clamped.scrollX,
         scrollY: clamped.scrollY,
       });
@@ -3369,23 +3357,16 @@ class App extends React.Component<AppProps, AppState> {
         propBounds == null && stateBounds != null;
 
       if (boundsStateDiverged) {
-        const minZoom = Math.max(
-          MIN_ZOOM,
-          this.state.width / propBounds!.width,
-          this.state.height / propBounds!.height,
-        );
-        const clampedZoom = Math.max(this.state.zoom.value, minZoom);
         const clamped = clampScrollToBounds(
           this.state.scrollX,
           this.state.scrollY,
-          clampedZoom,
+          this.state.zoom.value,
           this.state.width,
           this.state.height,
           propBounds!,
         );
         this.setState({
           canvasBounds: propBounds,
-          zoom: { value: getNormalizedZoom(clampedZoom) },
           scrollX: clamped.scrollX,
           scrollY: clamped.scrollY,
         });
