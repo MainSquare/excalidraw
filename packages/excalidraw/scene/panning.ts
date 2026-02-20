@@ -1,5 +1,7 @@
 import type { PanningMode } from "../types";
 
+const CANVAS_BOUNDS_PAN_MARGIN_RATIO = 0.5;
+
 /**
  * Restricts pan delta values based on the current panning mode.
  * @param panningMode - The current panning mode (free, vertical, horizontal or both)
@@ -41,27 +43,43 @@ export const clampScrollToBounds = (
   viewportHeight: number,
   bounds: { x: number; y: number; width: number; height: number },
 ): { scrollX: number; scrollY: number } => {
+  const panMarginX = Math.max(0, bounds.width * CANVAS_BOUNDS_PAN_MARGIN_RATIO);
+  const panMarginY = Math.max(
+    0,
+    bounds.height * CANVAS_BOUNDS_PAN_MARGIN_RATIO,
+  );
+  const expandedBounds = {
+    x: bounds.x - panMarginX,
+    y: bounds.y - panMarginY,
+    width: bounds.width + panMarginX * 2,
+    height: bounds.height + panMarginY * 2,
+  };
+
   const viewportW = viewportWidth / zoom;
   const viewportH = viewportHeight / zoom;
 
   let clampedScrollX: number;
   let clampedScrollY: number;
 
-  if (viewportW >= bounds.width) {
+  if (viewportW >= expandedBounds.width) {
     // Viewport wider than bounds — center horizontally
-    clampedScrollX = -(bounds.x + bounds.width / 2 - viewportW / 2);
+    const centeredX =
+      expandedBounds.x + expandedBounds.width / 2 - viewportW / 2;
+    clampedScrollX = -centeredX;
   } else {
-    const minScrollX = -(bounds.x + bounds.width - viewportW);
-    const maxScrollX = -bounds.x;
+    const minScrollX = -(expandedBounds.x + expandedBounds.width - viewportW);
+    const maxScrollX = -expandedBounds.x;
     clampedScrollX = Math.max(minScrollX, Math.min(maxScrollX, scrollX));
   }
 
-  if (viewportH >= bounds.height) {
+  if (viewportH >= expandedBounds.height) {
     // Viewport taller than bounds — center vertically
-    clampedScrollY = -(bounds.y + bounds.height / 2 - viewportH / 2);
+    const centeredY =
+      expandedBounds.y + expandedBounds.height / 2 - viewportH / 2;
+    clampedScrollY = -centeredY;
   } else {
-    const minScrollY = -(bounds.y + bounds.height - viewportH);
-    const maxScrollY = -bounds.y;
+    const minScrollY = -(expandedBounds.y + expandedBounds.height - viewportH);
+    const maxScrollY = -expandedBounds.y;
     clampedScrollY = Math.max(minScrollY, Math.min(maxScrollY, scrollY));
   }
 
