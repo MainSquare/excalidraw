@@ -656,8 +656,8 @@ export interface ExcalidrawProps {
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
   /**
-   * When set, Excalidraw renders as if its viewport were `canvasBounds`-sized,
-   * then CSS-scales the output to fit the actual container with letterboxing.
+   * When set, Excalidraw renders as if its viewport were `canvasBounds`-sized
+   * and scales the whiteboard layer to fit the actual container.
    * Used to synchronize viewport between devices with different screen sizes
    * (e.g., desktop therapist → mobile client).
    */

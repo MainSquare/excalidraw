@@ -368,8 +368,11 @@ const initializeScene = async (opts: {
   return { scene: null, isExternalScene: false };
 };
 
+const FAKE_THERAPIST_BOUNDS = { x: 0, y: 0, width: 1920, height: 1080 };
+
 const ExcalidrawWrapper = () => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [canvasBoundsEnabled, setCanvasBoundsEnabled] = useState(false);
   const isCollabDisabled = isRunningInIframe();
 
   const { editorTheme, appTheme, setAppTheme } = useHandleAppTheme();
@@ -844,6 +847,7 @@ const ExcalidrawWrapper = () => {
         initialData={initialStatePromiseRef.current.promise}
         isCollaborating={isCollaborating}
         onPointerUpdate={collabAPI?.onPointerUpdate}
+        canvasBounds={canvasBoundsEnabled ? FAKE_THERAPIST_BOUNDS : undefined}
         UIOptions={{
           canvasActions: {
             toggleTheme: true,
@@ -1192,6 +1196,28 @@ const ExcalidrawWrapper = () => {
           />
         )}
       </Excalidraw>
+      {/* Dev toggle: simulate therapist viewport (1920x1080) scaling */}
+      <button
+        onClick={() => setCanvasBoundsEnabled((prev) => !prev)}
+        style={{
+          position: "fixed",
+          bottom: 12,
+          left: 12,
+          zIndex: 9999,
+          padding: "6px 12px",
+          borderRadius: 6,
+          border: "1px solid #666",
+          background: canvasBoundsEnabled ? "#037971" : "#333",
+          color: "#fff",
+          fontSize: 12,
+          cursor: "pointer",
+          opacity: 0.85,
+        }}
+      >
+        {canvasBoundsEnabled
+          ? "Canvas Bounds: ON (1920x1080)"
+          : "Canvas Bounds: OFF"}
+      </button>
     </div>
   );
 };

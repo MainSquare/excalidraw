@@ -1448,7 +1448,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private renderEmbeddables() {
-    const scale = this.state.zoom.value;
+    const scale = this.state.zoom.value * this.state.renderScale;
     const normalizedWidth = this.state.width;
     const normalizedHeight = this.state.height;
 
@@ -2003,6 +2003,29 @@ class App extends React.Component<AppProps, AppState> {
     const showShapeSwitchPanel =
       editorJotaiStore.get(convertElementTypePopupAtom)?.type === "panel";
 
+    const containerRect =
+      this.excalidrawContainerRef.current?.getBoundingClientRect();
+    const whiteboardOffsetLeft =
+      containerRect && this.props.canvasBounds
+        ? this.state.offsetLeft - containerRect.left
+        : 0;
+    const whiteboardOffsetTop =
+      containerRect && this.props.canvasBounds
+        ? this.state.offsetTop - containerRect.top
+        : 0;
+
+    const whiteboardLayerStyle = this.props.canvasBounds
+      ? {
+          position: "absolute" as const,
+          left: whiteboardOffsetLeft,
+          top: whiteboardOffsetTop,
+          width: this.state.width,
+          height: this.state.height,
+          transform: `scale(${this.state.renderScale})`,
+          transformOrigin: "top left",
+        }
+      : undefined;
+
     return (
       <div
         translate="no"
@@ -2199,83 +2222,87 @@ class App extends React.Component<AppProps, AppState> {
                             }}
                           />
                         )}
-                        <StaticCanvas
-                          canvas={this.canvas}
-                          rc={this.rc}
-                          elementsMap={elementsMap}
-                          allElementsMap={allElementsMap}
-                          visibleElements={visibleElements}
-                          sceneNonce={sceneNonce}
-                          selectionNonce={
-                            this.state.selectionElement?.versionNonce
-                          }
-                          scale={window.devicePixelRatio}
-                          appState={this.state}
-                          renderConfig={{
-                            imageCache: this.imageCache,
-                            isExporting: false,
-                            renderGrid: isGridModeEnabled(this),
-                            canvasBackgroundColor:
-                              this.state.viewBackgroundColor,
-                            embedsValidationStatus: this.embedsValidationStatus,
-                            elementsPendingErasure: this.elementsPendingErasure,
-                            pendingFlowchartNodes:
-                              this.flowChartCreator.pendingNodes,
-                            theme: this.state.theme,
-                          }}
-                        />
-                        {this.state.newElement && (
-                          <NewElementCanvas
-                            appState={this.state}
-                            scale={window.devicePixelRatio}
+                        <div style={whiteboardLayerStyle}>
+                          <StaticCanvas
+                            canvas={this.canvas}
                             rc={this.rc}
                             elementsMap={elementsMap}
                             allElementsMap={allElementsMap}
+                            visibleElements={visibleElements}
+                            sceneNonce={sceneNonce}
+                            selectionNonce={
+                              this.state.selectionElement?.versionNonce
+                            }
+                            scale={window.devicePixelRatio}
+                            appState={this.state}
                             renderConfig={{
                               imageCache: this.imageCache,
                               isExporting: false,
-                              renderGrid: false,
+                              renderGrid: isGridModeEnabled(this),
                               canvasBackgroundColor:
                                 this.state.viewBackgroundColor,
                               embedsValidationStatus:
                                 this.embedsValidationStatus,
                               elementsPendingErasure:
                                 this.elementsPendingErasure,
-                              pendingFlowchartNodes: null,
+                              pendingFlowchartNodes:
+                                this.flowChartCreator.pendingNodes,
                               theme: this.state.theme,
                             }}
                           />
-                        )}
-                        <InteractiveCanvas
-                          app={this}
-                          containerRef={this.excalidrawContainerRef}
-                          canvas={this.interactiveCanvas}
-                          elementsMap={elementsMap}
-                          visibleElements={visibleElements}
-                          allElementsMap={allElementsMap}
-                          selectedElements={selectedElements}
-                          sceneNonce={sceneNonce}
-                          selectionNonce={
-                            this.state.selectionElement?.versionNonce
-                          }
-                          scale={window.devicePixelRatio}
-                          appState={this.state}
-                          renderScrollbars={
-                            this.props.renderScrollbars === true
-                          }
-                          editorInterface={this.editorInterface}
-                          renderInteractiveSceneCallback={
-                            this.renderInteractiveSceneCallback
-                          }
-                          handleCanvasRef={this.handleInteractiveCanvasRef}
-                          onContextMenu={this.handleCanvasContextMenu}
-                          onPointerMove={this.handleCanvasPointerMove}
-                          onPointerUp={this.handleCanvasPointerUp}
-                          onPointerCancel={this.removePointer}
-                          onTouchMove={this.handleTouchMove}
-                          onPointerDown={this.handleCanvasPointerDown}
-                          onDoubleClick={this.handleCanvasDoubleClick}
-                        />
+                          {this.state.newElement && (
+                            <NewElementCanvas
+                              appState={this.state}
+                              scale={window.devicePixelRatio}
+                              rc={this.rc}
+                              elementsMap={elementsMap}
+                              allElementsMap={allElementsMap}
+                              renderConfig={{
+                                imageCache: this.imageCache,
+                                isExporting: false,
+                                renderGrid: false,
+                                canvasBackgroundColor:
+                                  this.state.viewBackgroundColor,
+                                embedsValidationStatus:
+                                  this.embedsValidationStatus,
+                                elementsPendingErasure:
+                                  this.elementsPendingErasure,
+                                pendingFlowchartNodes: null,
+                                theme: this.state.theme,
+                              }}
+                            />
+                          )}
+                          <InteractiveCanvas
+                            app={this}
+                            containerRef={this.excalidrawContainerRef}
+                            canvas={this.interactiveCanvas}
+                            elementsMap={elementsMap}
+                            visibleElements={visibleElements}
+                            allElementsMap={allElementsMap}
+                            selectedElements={selectedElements}
+                            sceneNonce={sceneNonce}
+                            selectionNonce={
+                              this.state.selectionElement?.versionNonce
+                            }
+                            scale={window.devicePixelRatio}
+                            appState={this.state}
+                            renderScrollbars={
+                              this.props.renderScrollbars === true
+                            }
+                            editorInterface={this.editorInterface}
+                            renderInteractiveSceneCallback={
+                              this.renderInteractiveSceneCallback
+                            }
+                            handleCanvasRef={this.handleInteractiveCanvasRef}
+                            onContextMenu={this.handleCanvasContextMenu}
+                            onPointerMove={this.handleCanvasPointerMove}
+                            onPointerUp={this.handleCanvasPointerUp}
+                            onPointerCancel={this.removePointer}
+                            onTouchMove={this.handleTouchMove}
+                            onPointerDown={this.handleCanvasPointerDown}
+                            onDoubleClick={this.handleCanvasDoubleClick}
+                          />
+                        </div>
                         {this.state.userToFollow && (
                           <FollowMode
                             width={this.state.width}
@@ -3340,6 +3367,16 @@ class App extends React.Component<AppProps, AppState> {
 
     if (prevProps.theme !== this.props.theme && this.props.theme) {
       this.setState({ theme: this.props.theme });
+    }
+
+    if (
+      prevProps.canvasBounds?.x !== this.props.canvasBounds?.x ||
+      prevProps.canvasBounds?.y !== this.props.canvasBounds?.y ||
+      prevProps.canvasBounds?.width !== this.props.canvasBounds?.width ||
+      prevProps.canvasBounds?.height !== this.props.canvasBounds?.height
+    ) {
+      this.refreshEditorInterface();
+      this.updateDOMRect();
     }
 
     this.excalidrawContainerRef.current?.classList.toggle(
@@ -12360,34 +12397,36 @@ class App extends React.Component<AppProps, AppState> {
       const excalidrawContainer = this.excalidrawContainerRef.current;
       const domRect = excalidrawContainer.getBoundingClientRect();
 
-      // When canvasBounds is set, the container is CSS-scaled via
-      // CanvasBoundsWrapper. We override width/height with the virtual
-      // canvasBounds dimensions, keep offsetLeft/offsetTop from the
-      // actual screen position, and compute renderScale.
+      // When canvasBounds is active we keep virtual width/height so
+      // zoom/layout logic behaves like the target viewport, and we derive
+      // renderScale from actual container size.
       const canvasBounds = this.props.canvasBounds;
       let width: number;
       let height: number;
       let renderScale: number;
+      let offsetLeft = domRect.left;
+      let offsetTop = domRect.top;
 
-      if (
-        canvasBounds &&
-        canvasBounds.width > 0 &&
-        canvasBounds.height > 0
-      ) {
+      if (canvasBounds && canvasBounds.width > 0 && canvasBounds.height > 0) {
         width = canvasBounds.width;
         height = canvasBounds.height;
-        // getBoundingClientRect returns the CSS-transformed (scaled)
-        // dimensions, so we can derive renderScale from them.
         renderScale =
-          domRect.width > 0 ? domRect.width / canvasBounds.width : 1;
+          domRect.width > 0 && domRect.height > 0
+            ? Math.min(
+                domRect.width / canvasBounds.width,
+                domRect.height / canvasBounds.height,
+              )
+            : 1;
+
+        const scaledWidth = width * renderScale;
+        const scaledHeight = height * renderScale;
+        offsetLeft = domRect.left + (domRect.width - scaledWidth) / 2;
+        offsetTop = domRect.top + (domRect.height - scaledHeight) / 2;
       } else {
         width = domRect.width;
         height = domRect.height;
         renderScale = 1;
       }
-
-      const offsetLeft = domRect.left;
-      const offsetTop = domRect.top;
 
       const {
         width: currentWidth,
@@ -12432,10 +12471,28 @@ class App extends React.Component<AppProps, AppState> {
   private getCanvasOffsets(): Pick<AppState, "offsetTop" | "offsetLeft"> {
     if (this.excalidrawContainerRef?.current) {
       const excalidrawContainer = this.excalidrawContainerRef.current;
-      const { left, top } = excalidrawContainer.getBoundingClientRect();
+      const domRect = excalidrawContainer.getBoundingClientRect();
+      const canvasBounds = this.props.canvasBounds;
+
+      if (canvasBounds && canvasBounds.width > 0 && canvasBounds.height > 0) {
+        const renderScale =
+          domRect.width > 0 && domRect.height > 0
+            ? Math.min(
+                domRect.width / canvasBounds.width,
+                domRect.height / canvasBounds.height,
+              )
+            : 1;
+        const scaledWidth = canvasBounds.width * renderScale;
+        const scaledHeight = canvasBounds.height * renderScale;
+        return {
+          offsetLeft: domRect.left + (domRect.width - scaledWidth) / 2,
+          offsetTop: domRect.top + (domRect.height - scaledHeight) / 2,
+        };
+      }
+
       return {
-        offsetLeft: left,
-        offsetTop: top,
+        offsetLeft: domRect.left,
+        offsetTop: domRect.top,
       };
     }
     return {
