@@ -1,5 +1,20 @@
 import type { AppState, NormalizedZoomValue } from "../types";
 
+export const getViewportCenterForZoom = (
+  appState: Pick<
+    AppState,
+    "offsetLeft" | "offsetTop" | "width" | "height" | "renderScale"
+  >,
+) => {
+  const renderScale =
+    appState.renderScale && appState.renderScale > 0 ? appState.renderScale : 1;
+
+  return {
+    viewportX: appState.offsetLeft + (appState.width * renderScale) / 2,
+    viewportY: appState.offsetTop + (appState.height * renderScale) / 2,
+  };
+};
+
 export const getStateForZoom = (
   {
     viewportX,
@@ -12,8 +27,10 @@ export const getStateForZoom = (
   },
   appState: AppState,
 ) => {
-  const appLayerX = viewportX - appState.offsetLeft;
-  const appLayerY = viewportY - appState.offsetTop;
+  const renderScale =
+    appState.renderScale && appState.renderScale > 0 ? appState.renderScale : 1;
+  const appLayerX = (viewportX - appState.offsetLeft) / renderScale;
+  const appLayerY = (viewportY - appState.offsetTop) / renderScale;
 
   const currentZoom = appState.zoom.value;
 

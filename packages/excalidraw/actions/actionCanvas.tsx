@@ -44,7 +44,7 @@ import { setCursor } from "../cursor";
 import { t } from "../i18n";
 import { getNormalizedZoom } from "../scene";
 import { centerScrollOn } from "../scene/scroll";
-import { getStateForZoom } from "../scene/zoom";
+import { getStateForZoom, getViewportCenterForZoom } from "../scene/zoom";
 import { getShortcutKey } from "../shortcut";
 
 import { register } from "./register";
@@ -139,13 +139,14 @@ export const actionZoomIn = register({
   icon: ZoomInIcon,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
     return {
       appState: {
         ...appState,
         ...getStateForZoom(
           {
-            viewportX: appState.width / 2 + appState.offsetLeft,
-            viewportY: appState.height / 2 + appState.offsetTop,
+            viewportX,
+            viewportY,
             nextZoom: getNormalizedZoom(appState.zoom.value + ZOOM_STEP),
           },
           appState,
@@ -180,13 +181,14 @@ export const actionZoomOut = register({
   viewMode: true,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
     return {
       appState: {
         ...appState,
         ...getStateForZoom(
           {
-            viewportX: appState.width / 2 + appState.offsetLeft,
-            viewportY: appState.height / 2 + appState.offsetTop,
+            viewportX,
+            viewportY,
             nextZoom: getNormalizedZoom(appState.zoom.value - ZOOM_STEP),
           },
           appState,
@@ -221,13 +223,14 @@ export const actionResetZoom = register({
   viewMode: true,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
     return {
       appState: {
         ...appState,
         ...getStateForZoom(
           {
-            viewportX: appState.width / 2 + appState.offsetLeft,
-            viewportY: appState.height / 2 + appState.offsetTop,
+            viewportX,
+            viewportY,
             nextZoom: getNormalizedZoom(1),
           },
           appState,

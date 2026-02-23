@@ -365,7 +365,7 @@ import {
   hasBackground,
   isSomeElementSelected,
 } from "../scene";
-import { getStateForZoom } from "../scene/zoom";
+import { getStateForZoom, getViewportCenterForZoom } from "../scene/zoom";
 import {
   dataURLToString,
   generateIdFromFile,
@@ -2021,10 +2021,19 @@ class App extends React.Component<AppProps, AppState> {
           top: whiteboardOffsetTop,
           width: this.state.width,
           height: this.state.height,
-          transform: `scale(${this.state.renderScale})`,
+          transform: `scale(${this.state.renderScale * this.state.zoom.value})`,
           transformOrigin: "top left",
         }
       : undefined;
+
+    const canvasAppState = this.props.canvasBounds
+      ? {
+          ...this.state,
+          zoom: {
+            value: 1 as AppState["zoom"]["value"],
+          },
+        }
+      : this.state;
 
     return (
       <div
@@ -2222,7 +2231,10 @@ class App extends React.Component<AppProps, AppState> {
                             }}
                           />
                         )}
-                        <div style={whiteboardLayerStyle}>
+                        <div
+                          className="excalidraw__whiteboard-layer"
+                          style={whiteboardLayerStyle}
+                        >
                           <StaticCanvas
                             canvas={this.canvas}
                             rc={this.rc}
@@ -2234,7 +2246,7 @@ class App extends React.Component<AppProps, AppState> {
                               this.state.selectionElement?.versionNonce
                             }
                             scale={window.devicePixelRatio}
-                            appState={this.state}
+                            appState={canvasAppState}
                             renderConfig={{
                               imageCache: this.imageCache,
                               isExporting: false,
@@ -2252,7 +2264,7 @@ class App extends React.Component<AppProps, AppState> {
                           />
                           {this.state.newElement && (
                             <NewElementCanvas
-                              appState={this.state}
+                              appState={canvasAppState}
                               scale={window.devicePixelRatio}
                               rc={this.rc}
                               elementsMap={elementsMap}
@@ -2285,7 +2297,7 @@ class App extends React.Component<AppProps, AppState> {
                               this.state.selectionElement?.versionNonce
                             }
                             scale={window.devicePixelRatio}
-                            appState={this.state}
+                            appState={canvasAppState}
                             renderScrollbars={
                               this.props.renderScrollbars === true
                             }
@@ -4172,11 +4184,12 @@ class App extends React.Component<AppProps, AppState> {
      */
     value: number,
   ) => {
+    const { viewportX, viewportY } = getViewportCenterForZoom(this.state);
     this.setState({
       ...getStateForZoom(
         {
-          viewportX: this.state.width / 2 + this.state.offsetLeft,
-          viewportY: this.state.height / 2 + this.state.offsetTop,
+          viewportX,
+          viewportY,
           nextZoom: getNormalizedZoom(value),
         },
         this.state,
