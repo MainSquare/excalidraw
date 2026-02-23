@@ -4427,18 +4427,18 @@ class App extends React.Component<AppProps, AppState> {
     return getNormalizedZoom(fitZoom, Math.min(MIN_ZOOM, fitZoom));
   };
 
-  private getMinZoomForCanvasBounds = (): number => {
-    if (
-      !this.state.canvasBounds ||
-      this.state.width <= 0 ||
-      this.state.height <= 0
-    ) {
+  private getMinZoomForCanvasBounds = (
+    bounds: AppState["canvasBounds"] = this.state.canvasBounds,
+    viewportWidth: number = this.state.width,
+    viewportHeight: number = this.state.height,
+  ): number => {
+    if (!bounds || viewportWidth <= 0 || viewportHeight <= 0) {
       return MIN_ZOOM;
     }
     return Math.min(
       MIN_ZOOM,
-      this.state.width / this.state.canvasBounds.width,
-      this.state.height / this.state.canvasBounds.height,
+      viewportWidth / bounds.width,
+      viewportHeight / bounds.height,
     );
   };
 
@@ -4557,6 +4557,115 @@ class App extends React.Component<AppProps, AppState> {
     return { addedFiles };
   };
 
+  private getCanvasBoundsScaleDownFactor = ({
+    bounds,
+    viewportWidth,
+    viewportHeight,
+  }: {
+    bounds: AppState["canvasBounds"];
+    viewportWidth: number;
+    viewportHeight: number;
+  }) => {
+    if (
+      !this.props.canvasBoundsScaleDown ||
+      !bounds ||
+      viewportWidth <= 0 ||
+      viewportHeight <= 0 ||
+      bounds.width <= 0 ||
+      bounds.height <= 0
+    ) {
+      return 1;
+    }
+
+    return Math.min(
+      1,
+      viewportWidth / bounds.width,
+      viewportHeight / bounds.height,
+    );
+  };
+
+  private scaleDownAppStateForCanvasBounds = <K extends keyof AppState>(
+    appState: Pick<AppState, K>,
+  ): Pick<AppState, K> => {
+    const incomingAppState = appState as Partial<AppState>;
+
+    if (!this.props.canvasBoundsScaleDown || !incomingAppState.zoom) {
+      return appState;
+    }
+
+    const incomingZoom = incomingAppState.zoom;
+    const bounds = incomingAppState.canvasBounds ?? this.state.canvasBounds;
+    if (!bounds) {
+      return appState;
+    }
+
+    const viewportWidth = incomingAppState.width ?? this.state.width;
+    const viewportHeight = incomingAppState.height ?? this.state.height;
+    const offsetLeft = incomingAppState.offsetLeft ?? this.state.offsetLeft;
+    const offsetTop = incomingAppState.offsetTop ?? this.state.offsetTop;
+
+    const scaleFactor = this.getCanvasBoundsScaleDownFactor({
+      bounds,
+      viewportWidth,
+      viewportHeight,
+    });
+    if (scaleFactor >= 1) {
+      return appState;
+    }
+
+    const scaledZoomValue = incomingZoom.value * scaleFactor;
+    const nextZoom = getNormalizedZoom(
+      scaledZoomValue,
+      Math.min(
+        this.getMinZoomForCanvasBounds(bounds, viewportWidth, viewportHeight),
+        scaledZoomValue,
+      ),
+    );
+
+    const nextAppState = {
+      ...incomingAppState,
+      zoom: { value: nextZoom },
+    } as Partial<AppState>;
+
+    if (
+      typeof incomingAppState.scrollX === "number" &&
+      typeof incomingAppState.scrollY === "number"
+    ) {
+      const viewportCenter = viewportCoordsToSceneCoords(
+        {
+          clientX: viewportWidth / 2,
+          clientY: viewportHeight / 2,
+        },
+        {
+          zoom: incomingZoom,
+          offsetLeft,
+          offsetTop,
+          scrollX: incomingAppState.scrollX,
+          scrollY: incomingAppState.scrollY,
+        },
+      );
+
+      const viewportCoords = sceneCoordsToViewportCoords(
+        {
+          sceneX: viewportCenter.x,
+          sceneY: viewportCenter.y,
+        },
+        {
+          zoom: { value: nextZoom },
+          offsetLeft,
+          offsetTop,
+          scrollX: 0,
+          scrollY: 0,
+        },
+      );
+
+      nextAppState.scrollX = (viewportWidth / 2 - viewportCoords.x) / nextZoom;
+      nextAppState.scrollY = (viewportHeight / 2 - viewportCoords.y) / nextZoom;
+    }
+
+    return nextAppState as Pick<AppState, K>;
+  };
+
   public updateScene = withBatchedUpdates(
     <K extends keyof AppState>(sceneData: {
       elements?: SceneData["elements"];
@@ -4575,7 +4684,10 @@ class App extends React.Component<AppProps, AppState> {
        */
       captureUpdate?: SceneData["captureUpdate"];
     }) => {
-      const { elements, appState, collaborators, captureUpdate } = sceneData;
+      const { elements, collaborators, captureUpdate } = sceneData;
+      const appState = sceneData.appState
+        ? this.scaleDownAppStateForCanvasBounds(sceneData.appState)
+        : sceneData.appState;
 
       if (captureUpdate) {
         const nextElements = elements ? elements : undefined;

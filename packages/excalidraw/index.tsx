@@ -57,6 +57,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     showDeprecatedFonts,
     renderScrollbars,
     canvasBounds,
+    canvasBoundsScaleDown,
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
@@ -151,6 +152,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           showDeprecatedFonts={showDeprecatedFonts}
           renderScrollbars={renderScrollbars}
           canvasBounds={canvasBounds}
+          canvasBoundsScaleDown={canvasBoundsScaleDown}
         >
           {children}
         </App>

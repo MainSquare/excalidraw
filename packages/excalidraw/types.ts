@@ -657,6 +657,12 @@ export interface ExcalidrawProps {
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
   canvasBounds?: AppState["canvasBounds"];
+  /**
+   * When true and `canvasBounds` is set, externally provided zoom values
+   * (e.g. via `updateScene`) are scaled down to match the current viewport
+   * size relative to the bounds dimensions.
+   */
+  canvasBoundsScaleDown?: boolean;
 }
 
 export type SceneData = {

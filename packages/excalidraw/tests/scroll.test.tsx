@@ -1,6 +1,6 @@
 import React from "react";
 
-import { KEYS } from "@excalidraw/common";
+import { KEYS, viewportCoordsToSceneCoords } from "@excalidraw/common";
 
 import { Excalidraw } from "../index";
 
@@ -110,6 +110,71 @@ describe("appState", () => {
     // Assert we scroll properly with normal zoom
     API.setAppState({ zoom: { value: zoom } });
     scrollTest();
+    restoreOriginalGetBoundingClientRect();
+  });
+
+  it("scales down updateScene zoom when canvasBoundsScaleDown is enabled", async () => {
+    mockBoundingClientRect();
+    await render(
+      <Excalidraw
+        canvasBounds={{ x: 0, y: 0, width: 400, height: 200 }}
+        canvasBoundsScaleDown={true}
+      />,
+    );
+
+    const sourceZoom = 0.8 as typeof h.state.zoom.value;
+    const sourceScrollX = 10;
+    const sourceScrollY = 20;
+
+    const sourceCenter = viewportCoordsToSceneCoords(
+      { clientX: h.state.width / 2, clientY: h.state.height / 2 },
+      {
+        ...h.state,
+        scrollX: sourceScrollX,
+        scrollY: sourceScrollY,
+        zoom: { value: sourceZoom },
+      },
+    );
+
+    API.updateScene({
+      appState: {
+        zoom: { value: sourceZoom },
+        scrollX: sourceScrollX,
+        scrollY: sourceScrollY,
+      },
+    });
+
+    expect(h.state.zoom.value).toBe(0.4);
+
+    const nextCenter = viewportCoordsToSceneCoords(
+      { clientX: h.state.width / 2, clientY: h.state.height / 2 },
+      h.state,
+    );
+
+    expect(nextCenter.x).toBeCloseTo(sourceCenter.x, 5);
+    expect(nextCenter.y).toBeCloseTo(sourceCenter.y, 5);
+
+    restoreOriginalGetBoundingClientRect();
+  });
+
+  it("does not scale updateScene zoom when canvasBoundsScaleDown is disabled", async () => {
+    mockBoundingClientRect();
+    await render(
+      <Excalidraw canvasBounds={{ x: 0, y: 0, width: 400, height: 200 }} />,
+    );
+
+    const sourceZoom = 0.8 as typeof h.state.zoom.value;
+
+    API.updateScene({
+      appState: {
+        zoom: { value: sourceZoom },
+        scrollX: 10,
+        scrollY: 20,
+      },
+    });
+
+    expect(h.state.zoom.value).toBe(sourceZoom);
+
     restoreOriginalGetBoundingClientRect();
   });
 });
