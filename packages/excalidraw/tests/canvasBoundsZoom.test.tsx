@@ -7,7 +7,13 @@ import { Excalidraw } from "../index";
 import { getNormalizedZoom } from "../scene";
 import { getStateForZoom, getViewportCenterForZoom } from "../scene/zoom";
 
-import { act, render, waitFor } from "./test-utils";
+import {
+  act,
+  mockBoundingClientRect,
+  render,
+  restoreOriginalGetBoundingClientRect,
+  waitFor,
+} from "./test-utils";
 
 import type { AppState, NormalizedZoomValue } from "../types";
 
@@ -82,6 +88,26 @@ describe("canvas bounds zoom", () => {
     expect(nextAppState.zoom.value).toBeGreaterThan(appState.zoom.value);
   });
 
+  it("keeps scroll fixed when zooming with canvasBounds enabled", () => {
+    const appState = {
+      ...createCanvasBoundsAppState(),
+      scrollX: 123,
+      scrollY: -77,
+    };
+
+    const actionResult = actionZoomIn.perform(
+      [],
+      appState,
+      null,
+      { props: { canvasBounds: { x: 0, y: 0, width: 2000, height: 1000 } } } as any,
+    );
+
+    const nextAppState = actionResult.appState as AppState;
+    expect(nextAppState.zoom.value).toBeGreaterThan(appState.zoom.value);
+    expect(nextAppState.scrollX).toBe(appState.scrollX);
+    expect(nextAppState.scrollY).toBe(appState.scrollY);
+  });
+
   it("scales the whiteboard layer with zoom when canvasBounds is enabled", async () => {
     const { container } = await render(
       <Excalidraw canvasBounds={{ x: 0, y: 0, width: 2000, height: 1000 }} />,
@@ -112,5 +138,74 @@ describe("canvas bounds zoom", () => {
     await waitFor(() => {
       expect(whiteboardLayer.style.transform).toBe("scale(1)");
     });
+  });
+
+  it("keeps the viewport centered horizontally and vertically while zooming", async () => {
+    mockBoundingClientRect({
+      left: 100,
+      top: 40,
+      width: 1000,
+      height: 500,
+      right: 1100,
+      bottom: 540,
+      x: 100,
+      y: 40,
+      toJSON: () => {},
+    });
+
+    try {
+      await render(
+        <Excalidraw canvasBounds={{ x: 0, y: 0, width: 2000, height: 1000 }} />,
+      );
+
+      act(() => {
+        (window.h.app as any).updateDOMRect?.();
+      });
+
+      await waitFor(() => {
+        expect(window.h.state.renderScale).toBeCloseTo(0.5);
+      });
+
+      const centerXBefore =
+        window.h.state.offsetLeft +
+        (window.h.state.width *
+          window.h.state.renderScale *
+          window.h.state.zoom.value) /
+          2;
+      const centerYBefore =
+        window.h.state.offsetTop +
+        (window.h.state.height *
+          window.h.state.renderScale *
+          window.h.state.zoom.value) /
+          2;
+
+      expect(centerXBefore).toBeCloseTo(600);
+      expect(centerYBefore).toBeCloseTo(290);
+
+      act(() => {
+        window.h.app.zoomCanvas(2);
+      });
+
+      await waitFor(() => {
+        const centerXAfter =
+          window.h.state.offsetLeft +
+          (window.h.state.width *
+            window.h.state.renderScale *
+            window.h.state.zoom.value) /
+            2;
+        const centerYAfter =
+          window.h.state.offsetTop +
+          (window.h.state.height *
+            window.h.state.renderScale *
+            window.h.state.zoom.value) /
+            2;
+
+        expect(window.h.state.zoom.value).toBeCloseTo(2);
+        expect(centerXAfter).toBeCloseTo(600);
+        expect(centerYAfter).toBeCloseTo(290);
+      });
+    } finally {
+      restoreOriginalGetBoundingClientRect();
+    }
   });
 });

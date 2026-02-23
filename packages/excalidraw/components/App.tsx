@@ -3305,6 +3305,19 @@ class App extends React.Component<AppProps, AppState> {
       );
     }
 
+    if (
+      this.props.canvasBounds &&
+      prevState.zoom.value !== this.state.zoom.value
+    ) {
+      const { offsetTop, offsetLeft } = this.getCanvasOffsets();
+      if (
+        offsetTop !== this.state.offsetTop ||
+        offsetLeft !== this.state.offsetLeft
+      ) {
+        this.setState({ offsetTop, offsetLeft });
+      }
+    }
+
     if (prevState.userToFollow !== this.state.userToFollow) {
       if (prevState.userToFollow) {
         this.onUserFollowEmitter.trigger({
@@ -4184,7 +4197,9 @@ class App extends React.Component<AppProps, AppState> {
      */
     value: number,
   ) => {
-    const { viewportX, viewportY } = getViewportCenterForZoom(this.state);
+    const { viewportX, viewportY } = getViewportCenterForZoom(this.state, {
+      viewportScaledByZoom: !!this.props.canvasBounds,
+    });
     this.setState({
       ...getStateForZoom(
         {
@@ -4193,6 +4208,9 @@ class App extends React.Component<AppProps, AppState> {
           nextZoom: getNormalizedZoom(value),
         },
         this.state,
+        {
+          lockScroll: !!this.props.canvasBounds,
+        },
       ),
     });
   };
@@ -5518,6 +5536,9 @@ class App extends React.Component<AppProps, AppState> {
             nextZoom: getNormalizedZoom(initialScale * event.scale),
           },
           state,
+          {
+            lockScroll: !!this.props.canvasBounds,
+          },
         ),
       }));
     }
@@ -6425,18 +6446,28 @@ class App extends React.Component<AppProps, AppState> {
             nextZoom,
           },
           state,
+          {
+            lockScroll: !!this.props.canvasBounds,
+          },
         );
 
         const { deltaX: restrictedDeltaX, deltaY: restrictedDeltaY } =
           restrictPanDelta(this.state.panningMode, deltaX, deltaY);
+        const isZoomingGesture = nextZoom !== state.zoom.value;
+        const applyZoomPanDelta =
+          !this.props.canvasBounds || !isZoomingGesture;
 
         this.translateCanvas({
           zoom: zoomState.zoom,
           // 2x multiplier is just a magic number that makes this work correctly
           // on touchscreen devices (note: if we get report that panning is slower/faster
           // than actual movement, consider swapping with devicePixelRatio)
-          scrollX: zoomState.scrollX + 2 * (restrictedDeltaX / nextZoom),
-          scrollY: zoomState.scrollY + 2 * (restrictedDeltaY / nextZoom),
+          scrollX: applyZoomPanDelta
+            ? zoomState.scrollX + 2 * (restrictedDeltaX / nextZoom)
+            : zoomState.scrollX,
+          scrollY: applyZoomPanDelta
+            ? zoomState.scrollY + 2 * (restrictedDeltaY / nextZoom)
+            : zoomState.scrollY,
           shouldCacheIgnoreZoom: true,
         });
 
@@ -12307,6 +12338,9 @@ class App extends React.Component<AppProps, AppState> {
               nextZoom: getNormalizedZoom(newZoom),
             },
             state,
+            {
+              lockScroll: !!this.props.canvasBounds,
+            },
           ),
           shouldCacheIgnoreZoom: true,
         }));
@@ -12431,8 +12465,9 @@ class App extends React.Component<AppProps, AppState> {
               )
             : 1;
 
-        const scaledWidth = width * renderScale;
-        const scaledHeight = height * renderScale;
+        const viewportScale = renderScale * this.state.zoom.value;
+        const scaledWidth = width * viewportScale;
+        const scaledHeight = height * viewportScale;
         offsetLeft = domRect.left + (domRect.width - scaledWidth) / 2;
         offsetTop = domRect.top + (domRect.height - scaledHeight) / 2;
       } else {
@@ -12495,8 +12530,9 @@ class App extends React.Component<AppProps, AppState> {
                 domRect.height / canvasBounds.height,
               )
             : 1;
-        const scaledWidth = canvasBounds.width * renderScale;
-        const scaledHeight = canvasBounds.height * renderScale;
+        const viewportScale = renderScale * this.state.zoom.value;
+        const scaledWidth = canvasBounds.width * viewportScale;
+        const scaledHeight = canvasBounds.height * viewportScale;
         return {
           offsetLeft: domRect.left + (domRect.width - scaledWidth) / 2,
           offsetTop: domRect.top + (domRect.height - scaledHeight) / 2,

@@ -3,15 +3,23 @@ import type { AppState, NormalizedZoomValue } from "../types";
 export const getViewportCenterForZoom = (
   appState: Pick<
     AppState,
-    "offsetLeft" | "offsetTop" | "width" | "height" | "renderScale"
+    "offsetLeft" | "offsetTop" | "width" | "height" | "renderScale" | "zoom"
   >,
+  {
+    viewportScaledByZoom = false,
+  }: {
+    viewportScaledByZoom?: boolean;
+  } = {},
 ) => {
   const renderScale =
     appState.renderScale && appState.renderScale > 0 ? appState.renderScale : 1;
+  const viewportScale = viewportScaledByZoom
+    ? renderScale * appState.zoom.value
+    : renderScale;
 
   return {
-    viewportX: appState.offsetLeft + (appState.width * renderScale) / 2,
-    viewportY: appState.offsetTop + (appState.height * renderScale) / 2,
+    viewportX: appState.offsetLeft + (appState.width * viewportScale) / 2,
+    viewportY: appState.offsetTop + (appState.height * viewportScale) / 2,
   };
 };
 
@@ -26,7 +34,22 @@ export const getStateForZoom = (
     nextZoom: NormalizedZoomValue;
   },
   appState: AppState,
+  {
+    lockScroll = false,
+  }: {
+    lockScroll?: boolean;
+  } = {},
 ) => {
+  if (lockScroll) {
+    return {
+      scrollX: appState.scrollX,
+      scrollY: appState.scrollY,
+      zoom: {
+        value: nextZoom,
+      },
+    };
+  }
+
   const renderScale =
     appState.renderScale && appState.renderScale > 0 ? appState.renderScale : 1;
   const appLayerX = (viewportX - appState.offsetLeft) / renderScale;

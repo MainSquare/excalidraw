@@ -139,7 +139,9 @@ export const actionZoomIn = register({
   icon: ZoomInIcon,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
-    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState, {
+      viewportScaledByZoom: !!app.props?.canvasBounds,
+    });
     return {
       appState: {
         ...appState,
@@ -150,6 +152,9 @@ export const actionZoomIn = register({
             nextZoom: getNormalizedZoom(appState.zoom.value + ZOOM_STEP),
           },
           appState,
+          {
+            lockScroll: !!app.props?.canvasBounds,
+          },
         ),
         userToFollow: null,
       },
@@ -181,7 +186,9 @@ export const actionZoomOut = register({
   viewMode: true,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
-    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState, {
+      viewportScaledByZoom: !!app.props?.canvasBounds,
+    });
     return {
       appState: {
         ...appState,
@@ -192,6 +199,9 @@ export const actionZoomOut = register({
             nextZoom: getNormalizedZoom(appState.zoom.value - ZOOM_STEP),
           },
           appState,
+          {
+            lockScroll: !!app.props?.canvasBounds,
+          },
         ),
         userToFollow: null,
       },
@@ -223,7 +233,9 @@ export const actionResetZoom = register({
   viewMode: true,
   trackEvent: { category: "canvas" },
   perform: (_elements, appState, _, app) => {
-    const { viewportX, viewportY } = getViewportCenterForZoom(appState);
+    const { viewportX, viewportY } = getViewportCenterForZoom(appState, {
+      viewportScaledByZoom: !!app.props?.canvasBounds,
+    });
     return {
       appState: {
         ...appState,
@@ -234,6 +246,9 @@ export const actionResetZoom = register({
             nextZoom: getNormalizedZoom(1),
           },
           appState,
+          {
+            lockScroll: !!app.props?.canvasBounds,
+          },
         ),
         userToFollow: null,
       },
