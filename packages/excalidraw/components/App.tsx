@@ -4374,6 +4374,31 @@ class App extends React.Component<AppProps, AppState> {
     this.setState(state);
   };
 
+  private panViewportOrContent = (
+    deltaX: number,
+    deltaY: number,
+    {
+      multiplierX = 1,
+      multiplierY = 1,
+    }: {
+      multiplierX?: number;
+      multiplierY?: number;
+    } = {},
+  ) => {
+    if (this.props.canvasBounds) {
+      this.translateCanvas((state) => ({
+        offsetLeft: state.offsetLeft - deltaX * multiplierX,
+        offsetTop: state.offsetTop - deltaY * multiplierY,
+      }));
+      return;
+    }
+
+    this.translateCanvas((state) => ({
+      scrollX: state.scrollX - (deltaX * multiplierX) / state.zoom.value,
+      scrollY: state.scrollY - (deltaY * multiplierY) / state.zoom.value,
+    }));
+  };
+
   setToast = (
     toast: {
       message: string;
@@ -6457,6 +6482,18 @@ class App extends React.Component<AppProps, AppState> {
         const applyZoomPanDelta =
           !this.props.canvasBounds || !isZoomingGesture;
 
+        if (this.props.canvasBounds && applyZoomPanDelta) {
+          this.translateCanvas({
+            zoom: zoomState.zoom,
+            // 2x multiplier retained from existing touch-pan tuning.
+            offsetLeft: state.offsetLeft + 2 * restrictedDeltaX,
+            offsetTop: state.offsetTop + 2 * restrictedDeltaY,
+            shouldCacheIgnoreZoom: true,
+          });
+
+          return null;
+        }
+
         this.translateCanvas({
           zoom: zoomState.zoom,
           // 2x multiplier is just a magic number that makes this work correctly
@@ -7851,10 +7888,7 @@ class App extends React.Component<AppProps, AppState> {
       const { deltaX: restrictedDeltaX, deltaY: restrictedDeltaY } =
         restrictPanDelta(this.state.panningMode, deltaX, deltaY);
 
-      this.translateCanvas({
-        scrollX: this.state.scrollX - restrictedDeltaX / this.state.zoom.value,
-        scrollY: this.state.scrollY - restrictedDeltaY / this.state.zoom.value,
-      });
+      this.panViewportOrContent(restrictedDeltaX, restrictedDeltaY);
     });
     const teardown = withBatchedUpdates(
       (lastPointerUp = () => {
@@ -10083,12 +10117,8 @@ class App extends React.Component<AppProps, AppState> {
         dx,
         0,
       );
-      this.translateCanvas({
-        scrollX:
-          this.state.scrollX -
-          (restrictedDeltaX *
-            (currentScrollBars.horizontal?.deltaMultiplier || 1)) /
-            this.state.zoom.value,
+      this.panViewportOrContent(restrictedDeltaX, 0, {
+        multiplierX: currentScrollBars.horizontal?.deltaMultiplier || 1,
       });
       pointerDownState.lastCoords.x = x;
       return true;
@@ -10102,12 +10132,8 @@ class App extends React.Component<AppProps, AppState> {
         0,
         dy,
       );
-      this.translateCanvas({
-        scrollY:
-          this.state.scrollY -
-          (restrictedDeltaY *
-            (currentScrollBars.vertical?.deltaMultiplier || 1)) /
-            this.state.zoom.value,
+      this.panViewportOrContent(0, restrictedDeltaY, {
+        multiplierY: currentScrollBars.vertical?.deltaMultiplier || 1,
       });
       pointerDownState.lastCoords.y = y;
       return true;
@@ -12355,20 +12381,15 @@ class App extends React.Component<AppProps, AppState> {
           deltaY || deltaX,
           0,
         );
-        this.translateCanvas(({ zoom, scrollX }) => ({
-          // on Mac, shift+wheel tends to result in deltaX
-          scrollX: scrollX - restrictedDeltaX / zoom.value,
-        }));
+        // on Mac, shift+wheel tends to result in deltaX
+        this.panViewportOrContent(restrictedDeltaX, 0);
         return;
       }
 
       const { deltaX: restrictedDeltaX, deltaY: restrictedDeltaY } =
         restrictPanDelta(this.state.panningMode, deltaX, deltaY);
 
-      this.translateCanvas(({ zoom, scrollX, scrollY }) => ({
-        scrollX: scrollX - restrictedDeltaX / zoom.value,
-        scrollY: scrollY - restrictedDeltaY / zoom.value,
-      }));
+      this.panViewportOrContent(restrictedDeltaX, restrictedDeltaY);
     },
   );
 

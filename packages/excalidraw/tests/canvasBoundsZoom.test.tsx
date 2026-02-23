@@ -9,6 +9,7 @@ import { getStateForZoom, getViewportCenterForZoom } from "../scene/zoom";
 
 import {
   act,
+  fireEvent,
   mockBoundingClientRect,
   render,
   restoreOriginalGetBoundingClientRect,
@@ -207,5 +208,33 @@ describe("canvas bounds zoom", () => {
     } finally {
       restoreOriginalGetBoundingClientRect();
     }
+  });
+
+  it("pans by moving viewport offsets instead of scene scroll", async () => {
+    const { container } = await render(
+      <Excalidraw canvasBounds={{ x: 0, y: 0, width: 2000, height: 1000 }} />,
+    );
+
+    const interactiveCanvas = container.querySelector(
+      "canvas.interactive",
+    ) as HTMLCanvasElement;
+    expect(interactiveCanvas).toBeTruthy();
+
+    const prevScrollX = window.h.state.scrollX;
+    const prevScrollY = window.h.state.scrollY;
+    const prevOffsetLeft = window.h.state.offsetLeft;
+    const prevOffsetTop = window.h.state.offsetTop;
+
+    fireEvent.wheel(interactiveCanvas, {
+      deltaX: 20,
+      deltaY: 30,
+    });
+
+    await waitFor(() => {
+      expect(window.h.state.scrollX).toBe(prevScrollX);
+      expect(window.h.state.scrollY).toBe(prevScrollY);
+      expect(window.h.state.offsetLeft).not.toBe(prevOffsetLeft);
+      expect(window.h.state.offsetTop).not.toBe(prevOffsetTop);
+    });
   });
 });
