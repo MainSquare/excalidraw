@@ -75,6 +75,7 @@ exports[`exportToSvg > with default arguments 1`] = `
     "x": 0,
     "y": 0,
   },
+  "panningMode": "free",
   "pasteDialog": {
     "data": null,
     "shown": false,
@@ -86,6 +87,7 @@ exports[`exportToSvg > with default arguments 1`] = `
     "type": "selection",
   },
   "previousSelectedElementIds": {},
+  "renderScale": 1,
   "resizingElement": null,
   "scrollX": 0,
   "scrollY": 0,

@@ -472,6 +472,13 @@ export interface AppState {
   bindMode: BindMode;
   /** canvas panning mode restriction */
   panningMode: PanningMode;
+  /**
+   * Scale factor applied when canvasBounds is active.
+   * = min(actualContainerWidth / canvasBounds.width,
+   *       actualContainerHeight / canvasBounds.height)
+   * Defaults to 1 (no scaling).
+   */
+  renderScale: number;
 }
 
 export type SearchMatch = {
@@ -648,6 +655,13 @@ export interface ExcalidrawProps {
   aiEnabled?: boolean;
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
+  /**
+   * When set, Excalidraw renders as if its viewport were `canvasBounds`-sized,
+   * then CSS-scales the output to fit the actual container with letterboxing.
+   * Used to synchronize viewport between devices with different screen sizes
+   * (e.g., desktop therapist → mobile client).
+   */
+  canvasBounds?: { x: number; y: number; width: number; height: number };
 }
 
 export type SceneData = {

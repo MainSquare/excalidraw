@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { DEFAULT_UI_OPTIONS, isShallowEqual } from "@excalidraw/common";
 
 import App from "./components/App";
+import CanvasBoundsWrapper from "./components/CanvasBoundsWrapper";
 import { InitializeApp } from "./components/InitializeApp";
 import Footer from "./components/footer/FooterCenter";
 import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
@@ -56,6 +57,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     aiEnabled,
     showDeprecatedFonts,
     renderScrollbars,
+    canvasBounds,
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
@@ -111,47 +113,58 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     };
   }, []);
 
+  const appElement = (
+    <App
+      onChange={onChange}
+      onIncrement={onIncrement}
+      initialData={initialData}
+      excalidrawAPI={excalidrawAPI}
+      isCollaborating={isCollaborating}
+      onPointerUpdate={onPointerUpdate}
+      renderTopLeftUI={renderTopLeftUI}
+      renderTopRightUI={renderTopRightUI}
+      langCode={langCode}
+      viewModeEnabled={viewModeEnabled}
+      zenModeEnabled={zenModeEnabled}
+      gridModeEnabled={gridModeEnabled}
+      libraryReturnUrl={libraryReturnUrl}
+      theme={theme}
+      name={name}
+      renderCustomStats={renderCustomStats}
+      UIOptions={UIOptions}
+      onPaste={onPaste}
+      detectScroll={detectScroll}
+      handleKeyboardGlobally={handleKeyboardGlobally}
+      onLibraryChange={onLibraryChange}
+      autoFocus={autoFocus}
+      generateIdForFile={generateIdForFile}
+      onLinkOpen={onLinkOpen}
+      generateLinkForSelection={generateLinkForSelection}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onScrollChange={onScrollChange}
+      onDuplicate={onDuplicate}
+      validateEmbeddable={validateEmbeddable}
+      renderEmbeddable={renderEmbeddable}
+      aiEnabled={aiEnabled !== false}
+      showDeprecatedFonts={showDeprecatedFonts}
+      renderScrollbars={renderScrollbars}
+      canvasBounds={canvasBounds}
+    >
+      {children}
+    </App>
+  );
+
   return (
     <EditorJotaiProvider store={editorJotaiStore}>
       <InitializeApp langCode={langCode} theme={theme}>
-        <App
-          onChange={onChange}
-          onIncrement={onIncrement}
-          initialData={initialData}
-          excalidrawAPI={excalidrawAPI}
-          isCollaborating={isCollaborating}
-          onPointerUpdate={onPointerUpdate}
-          renderTopLeftUI={renderTopLeftUI}
-          renderTopRightUI={renderTopRightUI}
-          langCode={langCode}
-          viewModeEnabled={viewModeEnabled}
-          zenModeEnabled={zenModeEnabled}
-          gridModeEnabled={gridModeEnabled}
-          libraryReturnUrl={libraryReturnUrl}
-          theme={theme}
-          name={name}
-          renderCustomStats={renderCustomStats}
-          UIOptions={UIOptions}
-          onPaste={onPaste}
-          detectScroll={detectScroll}
-          handleKeyboardGlobally={handleKeyboardGlobally}
-          onLibraryChange={onLibraryChange}
-          autoFocus={autoFocus}
-          generateIdForFile={generateIdForFile}
-          onLinkOpen={onLinkOpen}
-          generateLinkForSelection={generateLinkForSelection}
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onScrollChange={onScrollChange}
-          onDuplicate={onDuplicate}
-          validateEmbeddable={validateEmbeddable}
-          renderEmbeddable={renderEmbeddable}
-          aiEnabled={aiEnabled !== false}
-          showDeprecatedFonts={showDeprecatedFonts}
-          renderScrollbars={renderScrollbars}
-        >
-          {children}
-        </App>
+        {canvasBounds ? (
+          <CanvasBoundsWrapper canvasBounds={canvasBounds}>
+            {appElement}
+          </CanvasBoundsWrapper>
+        ) : (
+          appElement
+        )}
       </InitializeApp>
     </EditorJotaiProvider>
   );

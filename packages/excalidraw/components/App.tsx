@@ -2893,8 +2893,19 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    const { width: editorWidth, height: editorHeight } =
-      container.getBoundingClientRect();
+    const domRect = container.getBoundingClientRect();
+
+    // When canvasBounds is active, use the virtual dimensions for
+    // form-factor / sidebar decisions so the UI matches the therapist layout.
+    const canvasBounds = this.props.canvasBounds;
+    const editorWidth =
+      canvasBounds && canvasBounds.width > 0
+        ? canvasBounds.width
+        : domRect.width;
+    const editorHeight =
+      canvasBounds && canvasBounds.height > 0
+        ? canvasBounds.height
+        : domRect.height;
 
     const storedDesktopUIMode = loadDesktopUIModePreference();
     const userAgentDescriptor = createUserAgentDescriptor(
@@ -12347,24 +12358,51 @@ class App extends React.Component<AppProps, AppState> {
   private updateDOMRect = (cb?: () => void) => {
     if (this.excalidrawContainerRef?.current) {
       const excalidrawContainer = this.excalidrawContainerRef.current;
-      const {
-        width,
-        height,
-        left: offsetLeft,
-        top: offsetTop,
-      } = excalidrawContainer.getBoundingClientRect();
+      const domRect = excalidrawContainer.getBoundingClientRect();
+
+      // When canvasBounds is set, the container is CSS-scaled via
+      // CanvasBoundsWrapper. We override width/height with the virtual
+      // canvasBounds dimensions, keep offsetLeft/offsetTop from the
+      // actual screen position, and compute renderScale.
+      const canvasBounds = this.props.canvasBounds;
+      let width: number;
+      let height: number;
+      let renderScale: number;
+
+      if (
+        canvasBounds &&
+        canvasBounds.width > 0 &&
+        canvasBounds.height > 0
+      ) {
+        width = canvasBounds.width;
+        height = canvasBounds.height;
+        // getBoundingClientRect returns the CSS-transformed (scaled)
+        // dimensions, so we can derive renderScale from them.
+        renderScale =
+          domRect.width > 0 ? domRect.width / canvasBounds.width : 1;
+      } else {
+        width = domRect.width;
+        height = domRect.height;
+        renderScale = 1;
+      }
+
+      const offsetLeft = domRect.left;
+      const offsetTop = domRect.top;
+
       const {
         width: currentWidth,
         height: currentHeight,
         offsetTop: currentOffsetTop,
         offsetLeft: currentOffsetLeft,
+        renderScale: currentRenderScale,
       } = this.state;
 
       if (
         width === currentWidth &&
         height === currentHeight &&
         offsetLeft === currentOffsetLeft &&
-        offsetTop === currentOffsetTop
+        offsetTop === currentOffsetTop &&
+        renderScale === currentRenderScale
       ) {
         if (cb) {
           cb();
@@ -12378,6 +12416,7 @@ class App extends React.Component<AppProps, AppState> {
           height,
           offsetLeft,
           offsetTop,
+          renderScale,
         },
         () => {
           cb && cb();
