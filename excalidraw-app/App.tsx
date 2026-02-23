@@ -1197,7 +1197,7 @@ const ExcalidrawWrapper = () => {
         )}
       </Excalidraw>
       {/* Dev toggle: simulate therapist viewport (1920x1080) scaling */}
-      <button
+      {/* <button
         onClick={() => setCanvasBoundsEnabled((prev) => !prev)}
         style={{
           position: "fixed",
@@ -1217,7 +1217,7 @@ const ExcalidrawWrapper = () => {
         {canvasBoundsEnabled
           ? "Canvas Bounds: ON (1920x1080)"
           : "Canvas Bounds: OFF"}
-      </button>
+      </button> */}
     </div>
   );
 };
