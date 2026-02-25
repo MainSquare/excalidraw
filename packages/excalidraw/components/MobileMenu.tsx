@@ -67,7 +67,7 @@ export const MobileMenu = ({
 }: MobileMenuProps) => {
   if (isMinimalUI) {
     return (
-      <FixedSideContainer side="top" className="App-top-bar">
+      <div className="layer-ui__wrapper">
         <Footer
           appState={appState}
           actionManager={actionManager}
@@ -75,7 +75,7 @@ export const MobileMenu = ({
           renderWelcomeScreen={false}
           isMinimalUI={true}
         />
-      </FixedSideContainer>
+      </div>
     );
   }
 
