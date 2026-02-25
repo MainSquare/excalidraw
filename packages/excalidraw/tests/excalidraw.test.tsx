@@ -265,9 +265,9 @@ describe("<Excalidraw/>", () => {
 
         expect(queryByTestId(container, "main-menu-trigger")).toBeNull();
         expect(container.querySelector(".App-menu_top")).toBeNull();
-        expect(container.querySelector(".layer-ui__wrapper__footer-right")).toBe(
-          null,
-        );
+        expect(
+          container.querySelector(".layer-ui__wrapper__footer-right"),
+        ).toBe(null);
         expect(container.querySelector(".zoom-actions")).not.toBeNull();
         expect(queryByTestId(container, "button-undo")).not.toBeNull();
         expect(queryByTestId(container, "button-redo")).not.toBeNull();

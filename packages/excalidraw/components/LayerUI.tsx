@@ -612,8 +612,9 @@ const LayerUI = ({
                 : {}
             }
           >
-            {!isMinimalUI &&
-              renderWelcomeScreen && <tunnels.WelcomeScreenCenterTunnel.Out />}
+            {!isMinimalUI && renderWelcomeScreen && (
+              <tunnels.WelcomeScreenCenterTunnel.Out />
+            )}
             {!isMinimalUI && renderFixedSideContainer()}
             <Footer
               appState={appState}
