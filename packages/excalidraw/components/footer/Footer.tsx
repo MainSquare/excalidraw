@@ -15,11 +15,13 @@ const Footer = ({
   actionManager,
   showExitZenModeBtn,
   renderWelcomeScreen,
+  isMinimalUI = false,
 }: {
   appState: UIAppState;
   actionManager: ActionManager;
   showExitZenModeBtn: boolean;
   renderWelcomeScreen: boolean;
+  isMinimalUI?: boolean;
 }) => {
   const { FooterCenterTunnel, WelcomeScreenHelpHintTunnel } = useTunnels();
 
@@ -53,23 +55,30 @@ const Footer = ({
           </Section>
         </Stack.Col>
       </div>
-      <FooterCenterTunnel.Out />
-      <div
-        className={clsx("layer-ui__wrapper__footer-right zen-mode-transition", {
-          "transition-right": appState.zenModeEnabled,
-        })}
-      >
-        <div style={{ position: "relative" }}>
-          {renderWelcomeScreen && <WelcomeScreenHelpHintTunnel.Out />}
-          <HelpButton
-            onClick={() => actionManager.executeAction(actionShortcuts)}
-          />
+      {!isMinimalUI && <FooterCenterTunnel.Out />}
+      {!isMinimalUI && (
+        <div
+          className={clsx(
+            "layer-ui__wrapper__footer-right zen-mode-transition",
+            {
+              "transition-right": appState.zenModeEnabled,
+            },
+          )}
+        >
+          <div style={{ position: "relative" }}>
+            {renderWelcomeScreen && <WelcomeScreenHelpHintTunnel.Out />}
+            <HelpButton
+              onClick={() => actionManager.executeAction(actionShortcuts)}
+            />
+          </div>
         </div>
-      </div>
-      <ExitZenModeButton
-        actionManager={actionManager}
-        showExitZenModeBtn={showExitZenModeBtn}
-      />
+      )}
+      {!isMinimalUI && (
+        <ExitZenModeButton
+          actionManager={actionManager}
+          showExitZenModeBtn={showExitZenModeBtn}
+        />
+      )}
     </footer>
   );
 };

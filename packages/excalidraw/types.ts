@@ -700,12 +700,20 @@ export type CanvasActions = Partial<{
   saveAsImage: boolean;
 }>;
 
+export type UIMode = "default" | "minimal";
+
 export type UIOptions = Partial<{
   dockedSidebarBreakpoint: number;
   canvasActions: CanvasActions;
   tools: {
     image: boolean;
   };
+  /**
+   * The visibility preset for Excalidraw's built-in UI.
+   * - `default`: render all built-in controls
+   * - `minimal`: render only zoom + undo/redo controls
+   */
+  uiMode: UIMode;
   /**
    * Optionally control the editor form factor and desktop UI mode from the host app.
    * If not provided, we will take care of it internally.
