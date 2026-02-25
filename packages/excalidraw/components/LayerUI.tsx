@@ -163,6 +163,7 @@ const LayerUI = ({
   const editorInterface = useEditorInterface();
   const stylesPanelMode = useStylesPanelMode();
   const isCompactStylesPanel = stylesPanelMode === "compact";
+  const isMinimalUI = UIOptions.uiMode === "minimal";
   const tunnels = useInitializeTunnels();
 
   const spacing = isCompactStylesPanel
@@ -471,8 +472,8 @@ const LayerUI = ({
       {/* render component fallbacks. Can be rendered anywhere as they'll be
           tunneled away. We only render tunneled components that actually
         have defaults when host do not render anything. */}
-      <DefaultMainMenu UIOptions={UIOptions} />
-      {UIOptions.showSidebarTrigger !== false && (
+      {!isMinimalUI && <DefaultMainMenu UIOptions={UIOptions} />}
+      {!isMinimalUI && UIOptions.showSidebarTrigger !== false && (
         <DefaultSidebar.Trigger
           __fallback
           icon={sidebarRightIcon}
@@ -596,6 +597,7 @@ const LayerUI = ({
           renderSidebars={renderSidebars}
           renderWelcomeScreen={renderWelcomeScreen}
           UIOptions={UIOptions}
+          isMinimalUI={isMinimalUI}
         />
       )}
       {editorInterface.formFactor !== "phone" && (
@@ -610,15 +612,17 @@ const LayerUI = ({
                 : {}
             }
           >
-            {renderWelcomeScreen && <tunnels.WelcomeScreenCenterTunnel.Out />}
-            {renderFixedSideContainer()}
+            {!isMinimalUI &&
+              renderWelcomeScreen && <tunnels.WelcomeScreenCenterTunnel.Out />}
+            {!isMinimalUI && renderFixedSideContainer()}
             <Footer
               appState={appState}
               actionManager={actionManager}
               showExitZenModeBtn={showExitZenModeBtn}
               renderWelcomeScreen={renderWelcomeScreen}
+              isMinimalUI={isMinimalUI}
             />
-            {appState.scrolledOutside && (
+            {!isMinimalUI && appState.scrolledOutside && (
               <button
                 type="button"
                 className="scroll-back-to-content"
@@ -632,7 +636,7 @@ const LayerUI = ({
               </button>
             )}
           </div>
-          {renderSidebars()}
+          {!isMinimalUI && renderSidebars()}
         </>
       )}
     </>
