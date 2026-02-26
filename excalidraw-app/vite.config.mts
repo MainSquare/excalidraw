@@ -200,7 +200,8 @@ export default defineConfig(({ mode }) => {
               },
             },
           ],
-          maximumFileSizeToCacheInBytes: 2.3 * 1024 ** 2, // 2.3MB
+          // Keep enough headroom for the main app bundle to remain precached.
+          maximumFileSizeToCacheInBytes: 4 * 1024 ** 2, // 4MB
         },
         manifest: {
           short_name: "Excalidraw",
