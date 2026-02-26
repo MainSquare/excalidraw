@@ -76,6 +76,15 @@ jobs:
           git push
           echo "::notice::Committed and pushed version changes to ${{ steps.release-info.outputs.environment }}"
 
+      # Create and push git tag (production only)
+      - name: Create git tag
+        if: github.ref == 'refs/heads/production'
+        run: |
+          VERSION="${{ steps.release-info.outputs.version }}"
+          git tag -a "v${VERSION}" -m "chore: release @excalidraw/excalidraw@${VERSION} [skip ci]"
+          git push origin "v${VERSION}"
+          echo "::notice::Created and pushed tag v${VERSION}"
+
       # Job summary
       - name: Write job summary
         if: always()
