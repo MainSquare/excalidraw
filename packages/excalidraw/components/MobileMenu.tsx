@@ -65,6 +65,12 @@ export const MobileMenu = ({
   onPenModeToggle,
   isMinimalUI,
 }: MobileMenuProps) => {
+  const {
+    WelcomeScreenCenterTunnel,
+    MainMenuTunnel,
+    DefaultSidebarTriggerTunnel,
+  } = useTunnels();
+
   if (isMinimalUI) {
     return (
       <div className="layer-ui__wrapper">
@@ -79,11 +85,6 @@ export const MobileMenu = ({
     );
   }
 
-  const {
-    WelcomeScreenCenterTunnel,
-    MainMenuTunnel,
-    DefaultSidebarTriggerTunnel,
-  } = useTunnels();
   const renderAppTopBar = () => {
     if (appState.openDialog?.name === "elementLinkSelector") {
       return null;
