@@ -1053,17 +1053,14 @@ const getFreeDrawSvgPath = (element: ExcalidrawFreeDrawElement) => {
 export const getFreedrawOutlinePoints = (
   element: ExcalidrawFreeDrawElement,
 ) => {
-  // If input points are empty (should they ever be?) return a dot
-  const inputPoints = element.simulatePressure
-    ? element.points
-    : element.points.length
-    ? element.points.map(([x, y], i) => [x, y, element.pressures[i]])
-    : [[0, 0, 0.5]];
+  // Keep freedraw thickness uniform: only strokeWidth controls thickness.
+  // Pointer speed/pressure data is intentionally ignored.
+  const inputPoints = element.points.length ? element.points : [[0, 0]];
 
   return getStroke(inputPoints as number[][], {
-    simulatePressure: element.simulatePressure,
+    simulatePressure: false,
     size: element.strokeWidth * 4.25,
-    thinning: 0.6,
+    thinning: 0,
     smoothing: 0.5,
     streamline: 0.5,
     easing: (t) => Math.sin((t * Math.PI) / 2), // https://easings.net/#easeOutSine
