@@ -212,6 +212,11 @@
   margin-inline-start: 0.6em !important;
 }
 
+.panning-mode-trigger.dropdown-menu-button--mobile {
+  width: var(--lg-button-size) !important;
+  height: var(--lg-button-size) !important;
+}
+
 .lock-buttons {
   display: flex;
 

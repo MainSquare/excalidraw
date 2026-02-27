@@ -64,6 +64,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
   // compares the same values
   const UIOptions: AppProps["UIOptions"] = {
     ...props.UIOptions,
+    uiMode: props.UIOptions?.uiMode ?? DEFAULT_UI_OPTIONS.uiMode,
     canvasActions: {
       ...DEFAULT_UI_OPTIONS.canvasActions,
       ...canvasActions,
