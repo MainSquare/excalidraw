@@ -330,6 +330,7 @@ export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
   tools: {
     image: true,
   },
+  uiMode: "minimal",
 };
 
 export const MAX_DECIMALS_FOR_SVG_EXPORT = 2;

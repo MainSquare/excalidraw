@@ -10,6 +10,7 @@ import { SCROLLBAR_WIDTH, SCROLLBAR_MARGIN } from "../scene/scrollbars";
 import { ExitViewModeButton, MobileShapeActions } from "./Actions";
 import { MobileToolBar } from "./MobileToolBar";
 import { FixedSideContainer } from "./FixedSideContainer";
+import Footer from "./footer/Footer";
 
 import { Island } from "./Island";
 
@@ -46,6 +47,7 @@ type MobileMenuProps = {
   renderWelcomeScreen: boolean;
   UIOptions: AppProps["UIOptions"];
   app: AppClassProperties;
+  isMinimalUI: boolean;
 };
 
 export const MobileMenu = ({
@@ -61,12 +63,28 @@ export const MobileMenu = ({
   UIOptions,
   app,
   onPenModeToggle,
+  isMinimalUI,
 }: MobileMenuProps) => {
   const {
     WelcomeScreenCenterTunnel,
     MainMenuTunnel,
     DefaultSidebarTriggerTunnel,
   } = useTunnels();
+
+  if (isMinimalUI) {
+    return (
+      <div className="layer-ui__wrapper">
+        <Footer
+          appState={appState}
+          actionManager={actionManager}
+          showExitZenModeBtn={false}
+          renderWelcomeScreen={false}
+          isMinimalUI={true}
+        />
+      </div>
+    );
+  }
+
   const renderAppTopBar = () => {
     if (appState.openDialog?.name === "elementLinkSelector") {
       return null;
